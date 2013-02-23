@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>com.athaydes.osgimonitor</groupId>
+		<artifactId>osgimonitor</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>osgimonitor-api</artifactId>
+	<name>OSGi Monitor API</name>
+	<description>This bundle provides an easy-to-use API to monitor and control an OSGi instance</description>
+	<packaging>bundle</packaging>
+
+	<dependencies>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<version>${maven.bundle.plugin.version}</version>
+				<configuration>
+					<instructions>
+						<Export-Package>com.athaydes.osgimonitor.api*;version=${project.version}</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
