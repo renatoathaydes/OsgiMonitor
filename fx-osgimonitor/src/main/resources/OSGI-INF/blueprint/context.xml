@@ -3,4 +3,8 @@
 
 	<reference id="monitorRegister" interface="com.athaydes.osgimonitor.api.MonitorRegister" />
 
+	<bean id="fxOsgiMonitor" class="com.athaydes.osgimonitor.fx.FxOsgiMonitor">
+		<argument ref="monitorRegister" />
+	</bean>
+
 </blueprint>

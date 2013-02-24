@@ -11,12 +11,14 @@ import org.ops4j.pax.exam.Option
 import org.ops4j.pax.exam.junit.PaxExam
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy
 import org.ops4j.pax.exam.spi.reactors.PerClass
-import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
 
 import javax.inject.Inject
 
-import static org.ops4j.pax.exam.CoreOptions.*
+import static com.athaydes.osgimonitor.tests.Util.assertAllBundlesActive
+import static com.athaydes.osgimonitor.tests.Util.systemBundles
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle
+import static org.ops4j.pax.exam.CoreOptions.options
 
 /**
  *
@@ -42,10 +44,7 @@ class MonitorRegisterTest {
 
 	@Test
 	void allBundlesAreActive( ) {
-		assert context != null
-		context.bundles.each { Bundle bundle ->
-			assert bundle.state == Bundle.ACTIVE
-		}
+		assertAllBundlesActive context
 	}
 
 	@Test
@@ -53,6 +52,9 @@ class MonitorRegisterTest {
 		runCapturingEvents { updates ->
 			def guava = context.bundles.find { it.symbolicName.contains( 'guava' ) }
 			assert guava != null
+
+			sleep 500
+			updates.clear()
 
 			try {
 				guava.stop()
@@ -103,17 +105,6 @@ class MonitorRegisterTest {
 		} finally {
 			monitorRegister.unregister monitor
 		}
-	}
-
-	def systemBundles( ) {
-		composite(
-				mavenBundle( "org.apache.aries.blueprint", "org.apache.aries.blueprint", "1.0.0" ),
-				mavenBundle( "org.apache.aries", "org.apache.aries.util", "1.0.0" ),
-				mavenBundle( "org.apache.aries.proxy", "org.apache.aries.proxy", "1.0.0" ),
-				mavenBundle( "org.codehaus.groovy", "groovy-all", "2.0.6" ),
-				junitBundles(),
-				cleanCaches( true )
-		)
 	}
 
 }
