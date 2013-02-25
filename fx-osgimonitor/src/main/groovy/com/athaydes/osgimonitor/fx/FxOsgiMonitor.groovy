@@ -4,15 +4,15 @@ import com.athaydes.osgimonitor.api.BundleData
 import com.athaydes.osgimonitor.api.MonitorRegister
 import com.athaydes.osgimonitor.api.OsgiMonitor
 import com.athaydes.osgimonitor.api.ServiceData
+import com.athaydes.osgimonitor.fx.tab.BundlesTab
+import com.athaydes.osgimonitor.fx.tab.ServicesTab
 import javafx.application.Application
-import javafx.collections.FXCollections
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.scene.Scene
 import javafx.scene.control.Button
-import javafx.scene.control.TableColumn
-import javafx.scene.control.TableView
-import javafx.scene.control.cell.PropertyValueFactory
+import javafx.scene.control.Tab
+import javafx.scene.control.TabPane
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 
@@ -42,23 +42,13 @@ class OsgiMonitorApp extends Application implements OsgiMonitor {
 
 	static appFuture = new ArrayBlockingQueue<OsgiMonitorApp>( 1 )
 
-	def table = new TableView()
-	def bundlesData = FXCollections.observableArrayList()
+	final bundlesTab = new BundlesTab()
+	final servicesTab = new ServicesTab()
+
 
 	@Override
 	void start( Stage stage ) {
 		appFuture.add this
-
-		def nameCol = new TableColumn( 'Bundle Symbolic Name' )
-		nameCol.minWidth = 200
-		nameCol.cellValueFactory = new PropertyValueFactory( 'symbolicName' )
-
-		def stateCol = new TableColumn( 'State' )
-		stateCol.minWidth = 100
-		stateCol.cellValueFactory = new PropertyValueFactory( 'state' )
-
-		table.columns.addAll( nameCol, stateCol )
-		table.items = bundlesData
 
 		Button btn = new Button()
 		btn.text = "Test"
@@ -68,17 +58,20 @@ class OsgiMonitorApp extends Application implements OsgiMonitor {
 				}
 		] as EventHandler
 
+		def tabPane = new TabPane()
+		tabPane.tabs.addAll( bundlesTab as Tab, servicesTab as Tab )
+
 		VBox root = new VBox()
 		root.spacing = 20
-		root.children.addAll( table, btn )
-		stage.scene = new Scene( root, 300, 250 )
+		root.children.addAll( tabPane, btn )
+		stage.scene = new Scene( root, 600, 400 )
 		stage.show()
 
 	}
 
 	@Override
 	void updateBundle( BundleData bundleData ) {
-		bundlesData << bundleData
+		bundlesTab.update bundleData
 	}
 
 	@Override

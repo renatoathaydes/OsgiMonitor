@@ -31,7 +31,11 @@ class FxOsgiMonitorTest {
 		monitors[ 0 ].updateBundle new BundleData( 'Another bundle', 'Stopped' )
 		monitors[ 0 ].updateBundle new BundleData( 'This bundle', 'Resolved' )
 
-		sleep 10000
+		sleep 5000
+
+		monitors[ 0 ].updateBundle new BundleData( 'Another bundle', 'Active' )
+
+		sleep 5000
 
 	}
 
