@@ -1,6 +1,7 @@
 package com.athaydes.osgimonitor.tests
 
 import com.athaydes.osgimonitor.api.MonitorRegister
+import com.athaydes.osgimonitor.automaton.Automaton
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.ops4j.pax.exam.Configuration
@@ -27,12 +28,14 @@ class FxOsgiMonitorIntegrationTest {
 	@Inject BundleContext context
 	@Inject MonitorRegister monitorRegister
 
+	final osgiMonitorVersion = "0.0.1-SNAPSHOT"
+
 	@Configuration
 	Option[] config( ) {
-		final osgiMonitorVersion = "0.0.1-SNAPSHOT"
 		options(
 				javaFxPackages(),
 				systemBundles(),
+				mavenBundle( "com.athaydes.osgimonitor", "automaton", osgiMonitorVersion ),
 				mavenBundle( "com.athaydes.osgimonitor", "osgimonitor-api", osgiMonitorVersion ),
 				mavenBundle( "com.athaydes.osgimonitor", "osgimonitor-backend", osgiMonitorVersion ),
 				mavenBundle( "com.athaydes.osgimonitor", "fx-osgimonitor", osgiMonitorVersion )
@@ -46,6 +49,7 @@ class FxOsgiMonitorIntegrationTest {
 
 	@Test
 	void fxMonitorDetectsEvents( ) {
+		Automaton.user.pause( 1000 ).moveTo( 500, 500 )
 		sleep 10000
 	}
 

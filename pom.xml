@@ -23,6 +23,7 @@
 		<module>osgimonitor-api</module>
 		<module>osgimonitor-backend</module>
 		<module>fx-osgimonitor</module>
+		<module>automaton</module>
 		<module>integration-tests</module>
 	</modules>
 
