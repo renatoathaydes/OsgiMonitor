@@ -1,6 +1,6 @@
 package com.athaydes.osgimonitor.internal
 
-import com.athaydes.osgimonitor.automaton.Automaton
+import com.athaydes.osgimonitor.automaton.SwingAutomaton
 import groovy.swing.SwingBuilder
 import org.junit.After
 import org.junit.Test
@@ -38,15 +38,15 @@ class RobotTypingUtilTest {
 
 
 		def testCommonChars = {
-			Automaton.user.moveTo( jta ).click().type( 'ABCDEFGHIJKLMNOPQRSTUVXZWY' ).pause( 100 )
+			SwingAutomaton.user.moveTo( jta ).click().type( 'ABCDEFGHIJKLMNOPQRSTUVXZWY' ).pause( 100 )
 			assert jta.text == 'ABCDEFGHIJKLMNOPQRSTUVXZWY'
 			jta.text = ''
 
-			Automaton.user.moveTo( jta ).click().type( 'abcdefghijklmnopqrstuvxzwy' ).pause( 100 )
+			SwingAutomaton.user.moveTo( jta ).click().type( 'abcdefghijklmnopqrstuvxzwy' ).pause( 100 )
 			assert jta.text == 'abcdefghijklmnopqrstuvxzwy'
 			jta.text = ''
 
-			Automaton.user.moveTo( jta ).click()
+			SwingAutomaton.user.moveTo( jta ).click()
 					.type( '1234567890 ,./-\n/+*\t' ).pause( 100 )
 			assert jta.text == '1234567890 ,./-\n/+*\t'
 			jta.text = ''
@@ -58,7 +58,7 @@ class RobotTypingUtilTest {
 
 			// FIXME Find way to change input language in any machine (haha)
 			// THIS CHANGES THE INPUT LANGUAGE ONLY IN MY MACHINE!!!
-			Automaton.user.pressSimultaneously( VK_ALT, VK_SHIFT ).pause( 500 )
+			SwingAutomaton.user.pressSimultaneously( VK_ALT, VK_SHIFT ).pause( 500 )
 		}
 	}
 
