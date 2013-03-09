@@ -38,10 +38,9 @@ class SwingUtil {
 	}
 
 	private static subItemsOf( component ) {
-		def res = component.components.toList()
-		res += callMethodIfExists( component, 'getContentPane' )
-		res += callMethodIfExists( component, 'getMenuComponents' ).toList()
-		res
+		component.components.toList() +
+				callMethodIfExists( component, 'getContentPane' ) +
+				callMethodIfExists( component, 'getMenuComponents' ).toList()
 	}
 
 	private static visit( nextLevel, action ) {

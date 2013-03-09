@@ -13,10 +13,10 @@ class FxOsgiMonitorTest {
 
 	@Test
 	void test1( ) {
-		def monitors = [ ]
+		List<OsgiMonitor> monitors = [ ]
 		def register = [
 				register: { OsgiMonitor osgiMonitor ->
-					monitors += osgiMonitor
+					monitors << osgiMonitor
 					return true
 				}
 		] as MonitorRegister

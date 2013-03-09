@@ -6,6 +6,7 @@ import org.junit.After
 import org.junit.Test
 
 import javax.swing.*
+import java.awt.Dimension
 
 import static java.awt.event.KeyEvent.VK_ALT
 import static java.awt.event.KeyEvent.VK_SHIFT
@@ -27,7 +28,7 @@ class RobotTypingUtilTest {
 	void testRobotCode( ) {
 		JTextArea jta
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 300, 300 ], show: true ) {
+			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
 				jta = textArea()
 			}
 		}

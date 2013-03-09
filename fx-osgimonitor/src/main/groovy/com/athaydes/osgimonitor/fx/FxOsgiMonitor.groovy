@@ -33,6 +33,7 @@ class FxOsgiMonitor {
 			Application.launch OsgiMonitorApp
 		}
 		OsgiMonitor app = OsgiMonitorApp.appFuture.poll( 5, TimeUnit.SECONDS )
+		assert app
 		monitorRegister.register app
 	}
 

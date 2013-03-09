@@ -10,7 +10,9 @@ import java.awt.event.MouseEvent
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.TimeUnit
 
+import static com.athaydes.osgimonitor.automaton.Automaton.getDEFAULT
 import static com.athaydes.osgimonitor.automaton.Speed.*
+import static java.awt.event.KeyEvent.*
 import static org.junit.Assert.assertEquals
 
 /**
@@ -57,17 +59,26 @@ class AutomatonTest {
 		assert slowDelta < 5000
 		assert veryFastDelta > 50
 
-		// check that VERY_FAST is the default speed
 		def defaultDelta = runWithTimer {
 			Automaton.user.moveTo 50, 100
 		}
 		def tolerance = 25 // ms
-		assertEquals defaultDelta, veryFastDelta, tolerance
+		def expectedDelta = defaultFrom slowDelta, mediumDelta, fastDelta, veryFastDelta
+		assertEquals defaultDelta, expectedDelta, tolerance
 
 		// test method chaining
 		Automaton.user.moveTo( 0, 0 ).moveTo( 50, 50 ).moveTo( 100, 0 )
 		assert MouseInfo.pointerInfo.location == new Point( 100, 0 )
 
+	}
+
+	static long defaultFrom( long slow, long medium, long fast, long veryFast ) {
+		switch ( DEFAULT ) {
+			case SLOW: return slow
+			case MEDIUM: return medium
+			case FAST: return fast
+			case VERY_FAST: return veryFast
+		}
 	}
 
 	@Test
@@ -100,12 +111,12 @@ class AutomatonTest {
 		assert slowDelta < 5000
 		assert veryFastDelta > 50
 
-		// check that VERY_FAST is the default speed
 		def defaultDelta = runWithTimer {
 			Automaton.user.moveBy 50, 50
 		}
-		def tolerance = 25 // ms
-		assertEquals defaultDelta, veryFastDelta, tolerance
+		def tolerance = 25
+		def expectedDelta = defaultFrom slowDelta, mediumDelta, fastDelta, veryFastDelta
+		assertEquals defaultDelta, expectedDelta, tolerance
 
 		// test method chaining
 		def currLocation = MouseInfo.pointerInfo.location
@@ -116,7 +127,7 @@ class AutomatonTest {
 	@Test
 	void testDragBy( ) {
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 300, 30 ], show: true )
+			jFrame = frame( title: 'Frame', size: [ 300, 30 ] as Dimension, show: true )
 		}
 		sleep 500
 		def initialLocation = jFrame.locationOnScreen
@@ -154,13 +165,14 @@ class AutomatonTest {
 		assert slowDelta < 5000
 		assert veryFastDelta > 50
 
-		// check that VERY_FAST is the default speed
 		def defaultDelta = runWithTimer {
 			Automaton.user.dragBy 50, 50
 		}
 		assertDraggedBy 50, 50
+
 		def tolerance = 25 // ms
-		assertEquals defaultDelta, veryFastDelta, tolerance
+		def expectedDelta = defaultFrom slowDelta, mediumDelta, fastDelta, veryFastDelta
+		assertEquals defaultDelta, expectedDelta, tolerance
 
 		// test method chaining
 		Automaton.user.dragBy( -50, 0 ).dragBy( 0, 50 )
@@ -173,7 +185,7 @@ class AutomatonTest {
 		def future = new LinkedBlockingDeque<MouseEvent>( 3 )
 		JButton btn
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 300, 300 ], show: true ) {
+			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
 				btn = button( text: 'Click Me', name: 'the-button',
 						mouseClicked: { MouseEvent e -> future.add e } )
 			}
@@ -199,7 +211,7 @@ class AutomatonTest {
 		def future = new LinkedBlockingDeque<MouseEvent>( 3 )
 		JTextArea jta
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 300, 300 ], show: true ) {
+			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
 				jta = textArea( text: 'Click Me', name: 'the-button',
 						mouseClicked: { MouseEvent e -> future.add e } )
 			}
@@ -227,6 +239,45 @@ class AutomatonTest {
 			assert user == user.pause( 100 )
 		}
 		assertEquals( 100, t, 20 )
+	}
+
+	@Test
+	void testType( ) {
+		JTextArea jta
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
+				jta = textArea()
+			}
+		}
+
+		sleep 500
+		assert jta != null
+		assert jta.text == ''
+
+		SwingAutomaton.user.moveTo( jta ).click().type( 'I can type here' ).pause( 100 )
+		assert jta.text == 'I can type here'
+
+		5.times { Automaton.user.type( VK_BACK_SPACE ) }
+		Automaton.user.type( VK_ENTER ).type( VK_TAB ).type( '1234567890' ).pause( 100 )
+		assert jta.text == 'I can type\n\t1234567890'
+
+	}
+
+	@Test
+	void testPressSimultaneously( ) {
+		JTextArea jta
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
+				jta = textArea()
+			}
+		}
+
+		sleep 500
+		assert jta != null
+		assert jta.text == ''
+
+		Automaton.user.type( 'a' ).pressSimultaneously( VK_SHIFT, VK_A ).pause( 100 )
+		assert jta.text == 'aA'
 	}
 
 	static long runWithTimer( Runnable action ) {

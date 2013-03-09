@@ -11,7 +11,6 @@ import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.TimeUnit
 
 import static com.athaydes.osgimonitor.automaton.SwingUtil.lookup
-import static java.awt.event.KeyEvent.*
 
 /**
  *
@@ -27,10 +26,10 @@ class SwingAutomatonTest {
 	}
 
 	@Test
-	void testMoveToComponent( ) {
+	void testMoveTo( ) {
 		JButton btn
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 300, 300 ], show: true ) {
+			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
 				btn = button( text: 'Click Me', name: 'the-button' )
 			}
 		}
@@ -57,10 +56,10 @@ class SwingAutomatonTest {
 	}
 
 	@Test
-	void testClickOnComponent( ) {
+	void testClickOn( ) {
 		BlockingDeque future = new LinkedBlockingDeque( 1 )
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 300, 300 ], show: true ) {
+			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
 				menuBar() {
 					menu( name: 'menu-button', text: "File", mnemonic: 'F' ) {
 						menuItem( name: 'item-exit', text: "Exit", mnemonic: 'X',
@@ -79,45 +78,6 @@ class SwingAutomatonTest {
 		// wait up to 1 sec for the button to be clicked
 		assert future.poll( 1, TimeUnit.SECONDS )
 
-	}
-
-	@Test
-	void testType( ) {
-		JTextArea jta
-		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 300, 300 ], show: true ) {
-				jta = textArea()
-			}
-		}
-
-		sleep 500
-		assert jta != null
-		assert jta.text == ''
-
-		SwingAutomaton.user.moveTo( jta ).click().type( 'I can type here' ).pause( 100 )
-		assert jta.text == 'I can type here'
-
-		5.times { SwingAutomaton.user.type( VK_BACK_SPACE ) }
-		SwingAutomaton.user.type( VK_ENTER ).type( VK_TAB ).type( '1234567890' ).pause( 100 )
-		assert jta.text == 'I can type\n\t1234567890'
-
-	}
-
-	@Test
-	void testPressSimultaneously( ) {
-		JTextArea jta
-		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 300, 300 ], show: true ) {
-				jta = textArea()
-			}
-		}
-
-		sleep 500
-		assert jta != null
-		assert jta.text == ''
-
-		SwingAutomaton.user.type( 'a' ).pressSimultaneously( VK_SHIFT, VK_A ).pause( 100 )
-		assert jta.text == 'aA'
 	}
 
 }

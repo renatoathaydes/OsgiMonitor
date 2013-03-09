@@ -3,8 +3,10 @@ package com.athaydes.osgimonitor.automaton
 import com.athaydes.osgimonitor.internal.Mouse
 
 import java.awt.*
+import java.awt.event.KeyEvent
 
-import static com.athaydes.osgimonitor.automaton.Speed.VERY_FAST
+import static com.athaydes.osgimonitor.automaton.Speed.*
+import static com.athaydes.osgimonitor.internal.RobotTypingUtil.robotCode
 
 /**
  *
@@ -13,12 +15,12 @@ import static com.athaydes.osgimonitor.automaton.Speed.VERY_FAST
 class Automaton<T extends Automaton> {
 
 	protected final robot = new Robot()
-	static final DEFAULT = VERY_FAST
-	private static T instance
+	static final DEFAULT = MEDIUM
+	private static Automaton instance
 
 	static synchronized T getUser( ) {
 		if ( !instance ) instance = new Automaton<Automaton>()
-		instance
+		instance as T
 	}
 
 	protected Automaton( ) {}
@@ -41,7 +43,7 @@ class Automaton<T extends Automaton> {
 			robot.delay speed.delay
 			currPos = MouseInfo.pointerInfo.location
 		}
-		this
+		this as T
 	}
 
 	protected static int delta( curr, target ) {
@@ -53,24 +55,61 @@ class Automaton<T extends Automaton> {
 		robot.mousePress Mouse.LEFT
 		moveBy x, y, speed
 		robot.mouseRelease Mouse.LEFT
-		this
+		this as T
 	}
 
 	T click( ) {
 		robot.mousePress Mouse.LEFT
 		robot.mouseRelease Mouse.LEFT
-		this
+		this as T
 	}
 
 	T rightClick( ) {
 		robot.mousePress Mouse.RIGHT
 		robot.mouseRelease Mouse.RIGHT
-		this
+		this as T
 	}
 
-	Automaton pause( long millis ) {
+	T pause( long millis ) {
 		sleep millis
-		this
+		this as T
+	}
+
+	T type( int keyCode ) {
+		typeCode( false, keyCode )
+		this as T
+	}
+
+	T pressSimultaneously( int ... keyCodes ) {
+		try {
+			keyCodes.each { robot.keyPress it }
+		} finally {
+			robot.delay 50
+			try {
+				keyCodes.each { robot.keyRelease it }
+			} catch ( ignored ) {}
+		}
+		this as T
+	}
+
+	T type( String text, Speed speed = DEFAULT ) {
+		text.each { c ->
+			println "Typing '$c'"
+			def rc = robotCode( c )
+			typeCode rc.shift, rc.code, speed
+		}
+		this as T
+	}
+
+	void typeCode( boolean shift, int code, Speed speed = DEFAULT ) {
+		if ( shift ) robot.keyPress KeyEvent.VK_SHIFT
+		try {
+			robot.keyPress code
+			robot.delay speed.delay * 10
+			robot.keyRelease code
+		} finally {
+			if ( shift ) robot.keyRelease KeyEvent.VK_SHIFT
+		}
 	}
 
 }

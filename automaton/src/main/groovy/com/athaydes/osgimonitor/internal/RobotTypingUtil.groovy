@@ -27,7 +27,7 @@ class RobotTypingUtil {
 		}
 	}
 
-	private static result( c, shift ) {
-		[ c: c, shift: shift ]
+	private static result( int c, boolean shift ) {
+		[ code: c, shift: shift ]
 	}
 }
