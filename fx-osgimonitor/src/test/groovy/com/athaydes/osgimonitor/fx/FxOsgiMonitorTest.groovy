@@ -3,6 +3,7 @@ package com.athaydes.osgimonitor.fx
 import com.athaydes.osgimonitor.api.BundleData
 import com.athaydes.osgimonitor.api.MonitorRegister
 import com.athaydes.osgimonitor.api.OsgiMonitor
+import com.athaydes.osgimonitor.automaton.FXAutomaton
 import org.junit.Test
 
 /**
@@ -31,7 +32,9 @@ class FxOsgiMonitorTest {
 		monitors[ 0 ].updateBundle new BundleData( 'Another bundle', 'Stopped' )
 		monitors[ 0 ].updateBundle new BundleData( 'This bundle', 'Resolved' )
 
-		sleep 5000
+		sleep 500
+
+		FXAutomaton.user.moveTo( 0, 0 )
 
 		monitors[ 0 ].updateBundle new BundleData( 'Another bundle', 'Active' )
 
