@@ -3,7 +3,7 @@ package com.athaydes.osgimonitor.fx
 import com.athaydes.osgimonitor.api.BundleData
 import com.athaydes.osgimonitor.api.MonitorRegister
 import com.athaydes.osgimonitor.api.OsgiMonitor
-import com.athaydes.osgimonitor.automaton.FXAutomaton
+import com.athaydes.automaton.FXAutomaton
 import org.junit.Test
 
 /**

@@ -1,12 +1,11 @@
-package com.athaydes.osgimonitor.automaton
+package com.athaydes.automaton
 
-import com.athaydes.osgimonitor.internal.Mouse
+import com.athaydes.internal.Mouse
 
 import java.awt.*
 import java.awt.event.KeyEvent
 
-import static com.athaydes.osgimonitor.automaton.Speed.*
-import static com.athaydes.osgimonitor.internal.RobotTypingUtil.robotCode
+import static com.athaydes.internal.RobotTypingUtil.robotCode
 
 /**
  *
@@ -15,7 +14,7 @@ import static com.athaydes.osgimonitor.internal.RobotTypingUtil.robotCode
 class Automaton<T extends Automaton> {
 
 	protected final robot = new Robot()
-	static final DEFAULT = MEDIUM
+	static final DEFAULT = com.athaydes.automaton.Speed.MEDIUM
 	private static Automaton instance
 
 	static synchronized T getUser( ) {

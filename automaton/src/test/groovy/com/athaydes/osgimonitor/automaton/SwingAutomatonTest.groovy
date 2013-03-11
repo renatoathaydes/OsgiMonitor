@@ -1,5 +1,6 @@
 package com.athaydes.osgimonitor.automaton
 
+import com.athaydes.automaton.SwingAutomaton
 import groovy.swing.SwingBuilder
 import org.junit.After
 import org.junit.Test
@@ -10,7 +11,7 @@ import java.util.concurrent.BlockingDeque
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.TimeUnit
 
-import static com.athaydes.osgimonitor.automaton.SwingUtil.lookup
+import static com.athaydes.automaton.SwingUtil.lookup
 
 /**
  *

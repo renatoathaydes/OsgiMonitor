@@ -1,6 +1,6 @@
 package com.athaydes.osgimonitor.internal
 
-import com.athaydes.osgimonitor.automaton.SwingAutomaton
+import com.athaydes.automaton.SwingAutomaton
 import groovy.swing.SwingBuilder
 import org.junit.After
 import org.junit.Test

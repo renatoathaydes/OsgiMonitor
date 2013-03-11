@@ -1,7 +1,7 @@
 package com.athaydes.osgimonitor.tests
 
 import com.athaydes.osgimonitor.api.MonitorRegister
-import com.athaydes.osgimonitor.automaton.Automaton
+import com.athaydes.automaton.Automaton
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.ops4j.pax.exam.Configuration
@@ -35,7 +35,7 @@ class FxOsgiMonitorIntegrationTest {
 		options(
 				javaFxPackages(),
 				systemBundles(),
-				mavenBundle( "com.athaydes.osgimonitor", "automaton", osgiMonitorVersion ),
+				mavenBundle( "com.athaydes.automaton", "automaton", osgiMonitorVersion ),
 				mavenBundle( "com.athaydes.osgimonitor", "osgimonitor-api", osgiMonitorVersion ),
 				mavenBundle( "com.athaydes.osgimonitor", "osgimonitor-backend", osgiMonitorVersion ),
 				mavenBundle( "com.athaydes.osgimonitor", "fx-osgimonitor", osgiMonitorVersion )

@@ -1,4 +1,4 @@
-package com.athaydes.osgimonitor.internal
+package com.athaydes.internal
 
 import java.awt.event.KeyEvent
 

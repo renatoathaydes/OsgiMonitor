@@ -4,17 +4,18 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>com.athaydes.osgimonitor</groupId>
-		<artifactId>osgimonitor</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-	</parent>
-
+	<groupId>com.athaydes.automaton</groupId>
 	<artifactId>automaton</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
 	<name>Automaton</name>
 	<description>Automaton is a tool for easily automating GUI tests</description>
 	<packaging>bundle</packaging>
 
+	<properties>
+		<groovy.version>2.0.6</groovy.version>
+		<java.version>1.7</java.version>
+		<maven.bundle.plugin.version>2.3.7</maven.bundle.plugin.version>
+	</properties>
 
 	<dependencies>
 
@@ -54,11 +55,11 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
 				<version>${maven.bundle.plugin.version}</version>
+				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Export-Package>com.athaydes.osgimonitor.automaton*</Export-Package>
+						<Export-Package>com.athaydes.automaton*</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>

@@ -1,4 +1,4 @@
-package com.athaydes.osgimonitor.automaton
+package com.athaydes.automaton
 
 import java.awt.*
 

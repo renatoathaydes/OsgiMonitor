@@ -1,5 +1,6 @@
 package com.athaydes.osgimonitor.automaton
 
+import com.athaydes.automaton.FXAutomaton
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.event.ActionEvent

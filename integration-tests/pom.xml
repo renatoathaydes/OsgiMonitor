@@ -33,7 +33,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.athaydes.osgimonitor</groupId>
+			<groupId>com.athaydes.automaton</groupId>
 			<artifactId>automaton</artifactId>
 			<version>${project.version}</version>
 		</dependency>
