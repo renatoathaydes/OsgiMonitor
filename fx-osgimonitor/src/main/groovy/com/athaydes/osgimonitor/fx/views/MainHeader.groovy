@@ -18,16 +18,16 @@ class MainHeader extends Region {
 	MainHeader( ) {
 		this.prefHeight = 150
 		def text = new Text( fill: textFill(), text: 'Osgi Monitor', x: 20, y: 28 )
+		text.id = 'main-header'
 		text.font = new Font( 'Arial Black', 20 )
 		text.effect = new DropShadow( offsetY: 3.0f, color: Color.WHEAT )
 		children.setAll text
 	}
 
-	static textFill( ) {
-		def stops = [
-				new Stop( 0, Color.MAROON ),
-				new Stop( 1, Color.TOMATO ) ] as Stop[]
-		new LinearGradient( 55, 0, 225, 0, false, CycleMethod.REFLECT, stops )
+	@Newify( Stop )
+	def textFill( ) {
+		new LinearGradient( 55, 0, 225, 0, false, CycleMethod.REFLECT,
+				Stop( 0, Color.MAROON ), Stop( 1, Color.TOMATO ) )
 	}
 
 }

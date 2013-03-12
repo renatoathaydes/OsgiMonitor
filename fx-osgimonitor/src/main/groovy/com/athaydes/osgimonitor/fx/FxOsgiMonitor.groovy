@@ -49,12 +49,10 @@ class OsgiMonitorApp extends Application implements OsgiMonitor {
 
 	final bundlesTab = new BundlesTab()
 	final servicesTab = new ServicesTab()
-	private Scene scene
+	def Scene scene
 
 	@Override
 	void start( Stage stage ) {
-		appFuture.add this
-
 		Button btn = new Button()
 		btn.text = "Test"
 		btn.onAction = [
@@ -64,15 +62,16 @@ class OsgiMonitorApp extends Application implements OsgiMonitor {
 		] as EventHandler
 
 		def tabPane = new TabPane()
-		tabPane.tabs.addAll( bundlesTab as Tab, servicesTab as Tab )
+		tabPane.tabs.addAll bundlesTab as Tab, servicesTab as Tab
 
-		VBox root = new VBox()
+		VBox root = new VBox( id: 'osgimonitor-root' )
 		root.spacing = 20
 		root.children.setAll new MainHeader(), tabPane, btn
 		scene = new Scene( root, 600, 400 )
 		scene.fill = Color.DARKGRAY
 		stage.scene = scene
 		stage.show()
+		appFuture.add this
 
 	}
 

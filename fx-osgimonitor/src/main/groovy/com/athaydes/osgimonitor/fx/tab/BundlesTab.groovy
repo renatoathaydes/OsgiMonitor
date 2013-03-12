@@ -12,22 +12,26 @@ import javafx.scene.control.cell.PropertyValueFactory
 import javafx.scene.layout.VBox
 import javafx.util.Callback
 
+import static javafx.scene.control.TableColumn.SortType.ASCENDING
+
 /**
  *
  * User: Renato
  */
 class BundlesTab extends AsTab {
 
-	def table = new TableView()
+	def table = new TableView( id: 'bundles-table' )
 	ObservableList<ObservableBundleData> bundlesData = FXCollections.observableArrayList()
 
 	String tabName( ) { 'Bundles' }
 
 
 	BundlesTab( ) {
+		tab.id = 'bundles-tab'
 		tab.closable = false
 		def nameCol = new TableColumn( 'Bundle Symbolic Name' )
 		nameCol.minWidth = 200
+		nameCol.sortType = ASCENDING
 		nameCol.cellValueFactory = new PropertyValueFactory( 'name' )
 
 		def stateCol = new TableColumn( 'State' )
@@ -36,7 +40,7 @@ class BundlesTab extends AsTab {
 			p.value.stateProp
 		} as Callback
 
-		table.columns.addAll( nameCol, stateCol )
+		table.columns.addAll nameCol, stateCol
 		table.items = bundlesData
 
 		def root = new VBox()
@@ -53,14 +57,19 @@ class BundlesTab extends AsTab {
 		} else {
 			bundlesData << new ObservableBundleData(
 					name: bundleData.symbolicName,
-					stateProp: new SimpleStringProperty( bundleData.state )
-			)
+					stateProp: new SimpleStringProperty( bundleData.state ) )
+			bundlesData.sort()
 		}
 	}
 
-	class ObservableBundleData {
+	class ObservableBundleData implements Comparable<ObservableBundleData> {
 		String name
 		StringProperty stateProp
+
+		@Override
+		int compareTo( ObservableBundleData other ) {
+			return this.name.compareTo( other.name )
+		}
 	}
 
 
