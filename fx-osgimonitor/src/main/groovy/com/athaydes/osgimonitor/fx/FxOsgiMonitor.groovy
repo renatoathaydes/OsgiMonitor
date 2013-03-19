@@ -32,15 +32,21 @@ class FxOsgiMonitor {
 
 	FxOsgiMonitor( MonitorRegister monitorRegister ) {
 		this.monitorRegister = monitorRegister
-		Thread.start {
-			Application.launch OsgiMonitorApp
-		}
+		Launcher.launchApplication()
 		def app = OsgiMonitorApp.appFuture.poll( 5, TimeUnit.SECONDS )
 		assert app
 		scene = app.scene
 		monitorRegister.register app
 	}
 
+}
+
+class Launcher {
+	static void launchApplication( ) {
+		Thread.start {
+			Application.launch OsgiMonitorApp
+		}
+	}
 }
 
 class OsgiMonitorApp extends Application implements OsgiMonitor {

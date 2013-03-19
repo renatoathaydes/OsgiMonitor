@@ -1,8 +1,15 @@
 package com.athaydes.automaton
 
+import javafx.application.Application
+import javafx.application.Platform
 import javafx.scene.Node
+import javafx.scene.Scene
+import javafx.scene.layout.VBox
+import javafx.stage.Stage
 
 import java.awt.*
+import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.TimeUnit
 
 /**
  *
@@ -50,4 +57,39 @@ class ListAsPoint {
 	def getX( ) { this[ 0 ] as int }
 
 	def getY( ) { this[ 1 ] as int }
+}
+
+class FXApp extends Application {
+
+	private static Stage stage
+	private static stageFuture = new ArrayBlockingQueue<Stage>( 1 )
+
+	static Scene getScene( ) { initialize().scene }
+
+	static Stage initialize( ) {
+		if ( !stage ) {
+			println 'Initializing FXApp'
+			Thread.start { Application.launch FXApp }
+			stage = stageFuture.poll 10, TimeUnit.SECONDS
+			stageFuture = null
+		}
+		stage
+	}
+
+	static void close( ) {
+		stage.close()
+	}
+
+	static void start( Application app ) {
+		initialize()
+		Platform.runLater { app.start( stage ) }
+	}
+
+	@Override
+	void start( Stage primaryStage ) throws Exception {
+		primaryStage.scene = new Scene( new VBox() )
+		primaryStage.title = 'FXAutomaton Stage'
+		stageFuture.add primaryStage
+		primaryStage.show()
+	}
 }

@@ -1,5 +1,6 @@
 package com.athaydes.osgimonitor.fx
 
+import com.athaydes.automaton.FXApp
 import com.athaydes.osgimonitor.api.BundleData
 import com.athaydes.osgimonitor.api.MonitorRegister
 import com.athaydes.osgimonitor.api.OsgiMonitor
@@ -14,25 +15,17 @@ import org.junit.Test
 class FxOsgiMonitorTest {
 
 	@Test
-	@Newify( BundleData )
 	void testMainScreenContainsAllItems( ) {
-		List<OsgiMonitor> monitors = [ ]
-		def register = [
-				register: { OsgiMonitor osgiMonitor ->
-					monitors << osgiMonitor
-					return true
-				}
-		] as MonitorRegister
+		def register = [ register: { true } ] as MonitorRegister
+
+		def app = new OsgiMonitorApp()
+
+		// mock Launcher static method
+		Launcher.metaClass.'static'.launchApplication = {
+			FXApp.start app
+		}
 
 		def monitor = new FxOsgiMonitor( register )
-
-		sleep 500
-
-		assert monitors.size() == 1
-
-		monitors[ 0 ].updateBundle BundleData( 'Some test bundle', 'Active' )
-		monitors[ 0 ].updateBundle BundleData( 'Another bundle', 'Stopped' )
-		monitors[ 0 ].updateBundle BundleData( 'This bundle', 'Resolved' )
 
 		while ( !monitor.scene ) sleep 500
 
@@ -47,8 +40,44 @@ class FxOsgiMonitorTest {
 		assert bundlesTable.columns.size() == 2
 
 		def nameColumn = bundlesTable.columns[ 0 ] as TableColumn
-
 		assert nameColumn.text == 'Bundle Symbolic Name'
+
+		def stateColumn = bundlesTable.columns[ 1 ] as TableColumn
+		assert stateColumn.text == 'State'
+
+	}
+
+	@Test
+	@Newify( BundleData )
+	void testBundleDataIsUpdated( ) {
+		List<OsgiMonitor> monitors = [ ]
+		def register = [
+				register: { OsgiMonitor osgiMonitor ->
+					monitors << osgiMonitor
+					return true
+				}
+		] as MonitorRegister
+
+		def app = new OsgiMonitorApp()
+
+		// mock Launcher static method
+		Launcher.metaClass.'static'.launchApplication = {
+			FXApp.start app
+		}
+
+		def monitor = new FxOsgiMonitor( register )
+
+		assert monitors.size() == 1
+
+		monitors[ 0 ].updateBundle BundleData( 'Some test bundle', 'Active' )
+		monitors[ 0 ].updateBundle BundleData( 'Another bundle', 'Stopped' )
+		monitors[ 0 ].updateBundle BundleData( 'This bundle', 'Resolved' )
+
+		while ( !monitor.scene ) sleep 500
+
+		def bundlesTable = monitor.scene.lookup( '#bundles-table' ) as TableView
+		assert bundlesTable
+		def nameColumn = bundlesTable.columns[ 0 ] as TableColumn
 
 		def data0 = nameColumn.getCellData( 0 )
 		def data1 = nameColumn.getCellData( 1 )
@@ -56,8 +85,6 @@ class FxOsgiMonitorTest {
 		assert [ data0, data1, data2 ] == [ 'Another bundle', 'Some test bundle', 'This bundle' ]
 
 		def stateColumn = bundlesTable.columns[ 1 ] as TableColumn
-
-		assert stateColumn.text == 'State'
 
 		data0 = stateColumn.getCellData( 0 )
 		data1 = stateColumn.getCellData( 1 )
@@ -70,9 +97,6 @@ class FxOsgiMonitorTest {
 		data1 = stateColumn.getCellData( 1 )
 		data2 = stateColumn.getCellData( 2 )
 		assert [ data0, data1, data2 ] == [ 'Active', 'Active', 'Resolved' ]
-
-		sleep 5000
-
 	}
 
 }

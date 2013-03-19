@@ -8,17 +8,18 @@
 	<artifactId>osgimonitor</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	
+
 	<name>OSGi Monitor Project</name>
-	<description>This Project provides a set of bundles to allow users to monitor and control an OSGi instance</description>
+	<description>This Project provides a set of bundles to allow users to monitor and control an OSGi instance
+	</description>
 
 	<properties>
-		<groovy.version>2.0.6</groovy.version>
+		<groovy.version>2.1.1</groovy.version>
 		<osgi.version>4.2.0</osgi.version>
 		<java.version>1.7</java.version>
 		<maven.bundle.plugin.version>2.3.7</maven.bundle.plugin.version>
 	</properties>
-	
+
 	<modules>
 		<module>osgimonitor-api</module>
 		<module>osgimonitor-backend</module>
