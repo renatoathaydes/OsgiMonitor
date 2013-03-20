@@ -22,12 +22,10 @@ class FxOsgiMonitorTest {
 
 		// mock Launcher static method
 		Launcher.metaClass.'static'.launchApplication = {
-			FXApp.start app
+			FXApp.startApp app
 		}
 
 		def monitor = new FxOsgiMonitor( register )
-
-		while ( !monitor.scene ) sleep 500
 
 		// just ensure everything is on the screen
 		assert monitor.scene.lookup( '#osgimonitor-root' )
@@ -58,11 +56,9 @@ class FxOsgiMonitorTest {
 				}
 		] as MonitorRegister
 
-		def app = new OsgiMonitorApp()
-
 		// mock Launcher static method
 		Launcher.metaClass.'static'.launchApplication = {
-			FXApp.start app
+			FXApp.startApp new OsgiMonitorApp()
 		}
 
 		def monitor = new FxOsgiMonitor( register )
@@ -72,8 +68,6 @@ class FxOsgiMonitorTest {
 		monitors[ 0 ].updateBundle BundleData( 'Some test bundle', 'Active' )
 		monitors[ 0 ].updateBundle BundleData( 'Another bundle', 'Stopped' )
 		monitors[ 0 ].updateBundle BundleData( 'This bundle', 'Resolved' )
-
-		while ( !monitor.scene ) sleep 500
 
 		def bundlesTable = monitor.scene.lookup( '#bundles-table' ) as TableView
 		assert bundlesTable

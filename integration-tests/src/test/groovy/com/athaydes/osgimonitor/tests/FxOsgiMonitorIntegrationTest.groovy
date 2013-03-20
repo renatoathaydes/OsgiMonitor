@@ -35,6 +35,7 @@ class FxOsgiMonitorIntegrationTest {
 		options(
 				javaFxPackages(),
 				systemBundles(),
+				mavenBundle( "org.codehaus.groovy", "groovy-all", "2.1.1" ),
 				mavenBundle( "com.athaydes.automaton", "automaton", osgiMonitorVersion ),
 				mavenBundle( "com.athaydes.osgimonitor", "osgimonitor-api", osgiMonitorVersion ),
 				mavenBundle( "com.athaydes.osgimonitor", "osgimonitor-backend", osgiMonitorVersion ),
@@ -50,7 +51,7 @@ class FxOsgiMonitorIntegrationTest {
 	@Test
 	void fxMonitorDetectsEvents( ) {
 		Automaton.user.pause( 1000 ).moveTo( 500, 500 )
-		sleep 10000
+		sleep 5000
 	}
 
 }

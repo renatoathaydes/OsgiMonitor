@@ -77,12 +77,12 @@ class FXApp extends Application {
 	}
 
 	static void close( ) {
-		stage.close()
+		if ( stage ) Platform.runLater { stage.close() }
 	}
 
-	static void start( Application app ) {
+	static void startApp( Application app ) {
 		initialize()
-		Platform.runLater { app.start( stage ) }
+		Platform.runLater { app.start stage }
 	}
 
 	@Override
