@@ -63,6 +63,8 @@ public class JavaMonitorRegister implements MonitorRegister,
 
 	public static String toStateString( int state ) {
 		switch ( state ) {
+			case BundleEvent.LAZY_ACTIVATION:
+				return "Lazy Activation";
 			case BundleEvent.INSTALLED:
 				return "Installed";
 			case BundleEvent.UNINSTALLED:

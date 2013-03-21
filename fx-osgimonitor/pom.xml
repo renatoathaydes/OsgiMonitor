@@ -30,13 +30,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.9</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
 			<groupId>com.athaydes.automaton</groupId>
 			<artifactId>automaton</artifactId>
 			<version>${project.version}</version>
