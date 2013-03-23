@@ -58,18 +58,13 @@ class BundlesTab extends AsTab {
 			bundlesData << new ObservableBundleData(
 					name: bundleData.symbolicName,
 					stateProp: new SimpleStringProperty( bundleData.state ) )
-			bundlesData.sort()
+			bundlesData.sort { b1, b2 -> b1.name.compareTo b2.name }
 		}
 	}
 
-	class ObservableBundleData implements Comparable<ObservableBundleData> {
+	class ObservableBundleData {
 		String name
 		StringProperty stateProp
-
-		@Override
-		int compareTo( ObservableBundleData other ) {
-			return this.name.compareTo( other.name )
-		}
 	}
 
 

@@ -2,9 +2,11 @@ package com.athaydes.osgimonitor.impl
 
 import com.athaydes.osgimonitor.api.BundleData
 import com.athaydes.osgimonitor.api.OsgiMonitor
+import com.athaydes.osgimonitor.api.ServiceData
 import org.junit.Test
 import org.osgi.framework.*
 import org.osgi.framework.BundleEvent as BE
+import org.osgi.framework.ServiceEvent as SE
 
 /**
  *
@@ -43,7 +45,13 @@ class JavaMonitorRegisterTest {
 		10.times { registry.bundleChanged bundleEvent }
 
 		def serviceEvent = new ServiceEvent( ServiceEvent.REGISTERED,
-				[ : ] as ServiceReference )
+				[
+						getBundle: { [ getSymbolicName: { '' } ] as Bundle },
+						getUsingBundles: { [ ] as Bundle[] },
+						getPropertyKeys: { [ ] as String[] }
+				] as ServiceReference,
+		)
+
 
 		10.times { registry.serviceChanged( serviceEvent ) }
 	}
@@ -54,7 +62,8 @@ class JavaMonitorRegisterTest {
 		def registry = new JavaMonitorRegister( [
 				addBundleListener: {},
 				addServiceListener: {},
-				getBundles: { [ ] as Bundle[] }
+				getBundles: { [ ] as Bundle[] },
+				getAllServiceReferences: { _1, _2 -> [ ] as ServiceReference[] }
 		] as BundleContext )
 
 		def data = [ ] as List<BundleData>
@@ -85,7 +94,8 @@ class JavaMonitorRegisterTest {
 							[ getSymbolicName: { 'BundleA' }, getState: { BE.INSTALLED } ] as Bundle,
 							[ getSymbolicName: { 'BundleB' }, getState: { BE.RESOLVED } ] as Bundle,
 					] as Bundle[]
-				}
+				},
+				getAllServiceReferences: { _1, _2 -> [ ] as ServiceReference[] }
 		] as BundleContext )
 
 		def data = [ ] as List<BundleData>
@@ -98,6 +108,99 @@ class JavaMonitorRegisterTest {
 		assert data[ 0 ].state == JavaMonitorRegister.toStateString( BE.INSTALLED )
 		assert data[ 1 ].symbolicName == 'BundleB'
 		assert data[ 1 ].state == JavaMonitorRegister.toStateString( BE.RESOLVED )
+
+	}
+
+	@Test
+	void testServiceChanged( ) {
+		def registry = new JavaMonitorRegister( [
+				addBundleListener: {},
+				addServiceListener: {},
+				getBundles: { [ ] as Bundle[] },
+				getAllServiceReferences: { _1, _2 -> [ ] as ServiceReference[] }
+		] as BundleContext )
+
+		def data = [ ] as List<ServiceData>
+		def monitor = [ updateService: { data << it } ] as OsgiMonitor
+
+		registry.register( monitor )
+
+		def states = [ SE.MODIFIED, SE.MODIFIED_ENDMATCH, SE.REGISTERED, SE.UNREGISTERING ]
+		( 0..3 ).each { n ->
+			def serviceReference = [
+					getBundle: { [ getSymbolicName: { 'bundleS' + n } ] as Bundle },
+					getUsingBundles: {
+						[
+								[ getSymbolicName: { 'bundleA' + n } ] as Bundle,
+								[ getSymbolicName: { 'bundleB' + n } ] as Bundle
+						] as Bundle[]
+					},
+					getPropertyKeys: n == 0 ? { [ 'p1', 'p2' ] as String[] } : { [ ] as String[] },
+					getProperty: n == 0 ? { key -> if ( key == 'p1' ) 'v1' else if ( key == 'p2' ) 2 } : {}
+			] as ServiceReference
+			registry.serviceChanged new ServiceEvent( states[ n ], serviceReference )
+		}
+
+		assert data.size() == 4
+		assert data*.state == states.collect { n -> JavaMonitorRegister.serviceState n }
+		( 0..3 ).each { n ->
+			assert data[ n ].bundleName == 'bundleS' + n
+			assert data[ n ].bundlesUsing == [ 'bundleA' + n, 'bundleB' + n ]
+		}
+		assert data[ 0 ].properties.size() == 2
+		assert data[ 0 ].properties[ 'p1' ] == 'v1'
+		assert data[ 0 ].properties[ 'p2' ] == 2
+
+		assert data[ 1 ].properties.isEmpty()
+		assert data[ 2 ].properties.isEmpty()
+		assert data[ 3 ].properties.isEmpty()
+
+	}
+
+	@Test
+	void testCurrentServiceDataProvidedOnRegistration( ) {
+		def registry = new JavaMonitorRegister( [
+				addBundleListener: {},
+				addServiceListener: {},
+				getBundles: { [ ] as Bundle[] },
+				getAllServiceReferences: { _1, _2 ->
+					[
+							[
+									getBundle: { [ getSymbolicName: { 'bundle 1' } ] as Bundle },
+									getUsingBundles: {
+										[
+												[ getSymbolicName: { 'bundleA' } ] as Bundle,
+												[ getSymbolicName: { 'bundleB' } ] as Bundle
+										] as Bundle[]
+									},
+									getPropertyKeys: { [ ] as String[] }
+							] as ServiceReference,
+							[
+									getBundle: { [ getSymbolicName: { 'bundle 2' } ] as Bundle },
+									getUsingBundles: {
+										[
+												[ getSymbolicName: { 'bundleC' } ] as Bundle
+										] as Bundle[]
+									},
+									getPropertyKeys: { [ ] as String[] }
+							] as ServiceReference
+					] as ServiceReference[]
+				}
+		] as BundleContext )
+
+		def data = [ ] as List<ServiceData>
+		def monitor = [ updateService: { data << it } ] as OsgiMonitor
+
+		registry.register( monitor )
+
+		assert data.size() == 2
+		assert data[ 0 ].bundlesUsing == [ 'bundleA', 'bundleB' ]
+		assert data[ 0 ].bundleName == 'bundle 1'
+		assert data[ 0 ].state == JavaMonitorRegister.serviceState( SE.REGISTERED )
+
+		assert data[ 1 ].bundlesUsing == [ 'bundleC' ]
+		assert data[ 1 ].bundleName == 'bundle 2'
+		assert data[ 1 ].state == JavaMonitorRegister.serviceState( SE.REGISTERED )
 
 	}
 

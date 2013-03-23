@@ -67,7 +67,7 @@ class OsgiMonitorApp extends Application implements OsgiMonitor {
 				}
 		] as EventHandler
 
-		def tabPane = new TabPane()
+		def tabPane = new TabPane( id: 'main-tab-pane' )
 		tabPane.tabs.addAll bundlesTab as Tab, servicesTab as Tab
 
 		VBox root = new VBox( id: 'osgimonitor-root' )
@@ -88,6 +88,6 @@ class OsgiMonitorApp extends Application implements OsgiMonitor {
 
 	@Override
 	void updateService( ServiceData serviceData ) {
-		//TODO implement services monitor
+		servicesTab.update serviceData
 	}
 }

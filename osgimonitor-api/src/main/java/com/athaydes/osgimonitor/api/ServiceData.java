@@ -1,29 +1,40 @@
 package com.athaydes.osgimonitor.api;
 
+import java.util.Collections;
+import java.util.Map;
+
 /**
  * User: Renato
  */
 public class ServiceData {
 
-	private final String serviceId;
-	private final String bundleSymbolicName;
-	private final String serviceClassName;
+	private final String bundleName;
+	private final String[] bundlesUsing;
+	private final String state;
+	private final Map<String, Object> properties;
 
-	public ServiceData( String serviceId, String bundleSymbolicName, String serviceClassName ) {
-		this.serviceId = serviceId;
-		this.bundleSymbolicName = bundleSymbolicName;
-		this.serviceClassName = serviceClassName;
+	public ServiceData( String bundleName, String[] bundlesUsing,
+	                    String state, Map<String, Object> properties ) {
+		this.bundleName = bundleName;
+		this.bundlesUsing = bundlesUsing;
+		this.state = state;
+		this.properties = Collections.unmodifiableMap( properties );
 	}
 
-	public String getServiceId() {
-		return serviceId;
+	public String getBundleName() {
+		return bundleName;
 	}
 
-	public String getBundleSymbolicName() {
-		return bundleSymbolicName;
+	public String[] getBundlesUsing() {
+		return bundlesUsing;
 	}
 
-	public String getServiceClassName() {
-		return serviceClassName;
+	public String getState() {
+		return state;
 	}
+
+	public Map<String, Object> getProperties() {
+		return properties;
+	}
+
 }

@@ -1,7 +1,5 @@
 package com.athaydes.osgimonitor.api;
 
-import org.osgi.framework.BundleEvent;
-
 /**
  * User: Renato
  */
