@@ -39,24 +39,15 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 	}
 
 	static Point centerOf( Node node ) {
-		use( ListAsPoint ) {
-			def windowPos = [ node.scene.window.x, node.scene.window.y ]
-			def scenePos = [ node.scene.x, node.scene.y ]
-			def boundsInScene = node.localToScene node.boundsInLocal
-			def absX = windowPos.x + scenePos.x + boundsInScene.minX
-			def absY = windowPos.y + scenePos.y + boundsInScene.minY
-			[ ( absX + boundsInScene.width / 2 ) as int,
-					( absY + boundsInScene.height / 2 ) as int ] as Point
-		}
+		def windowPos = new Point( node.scene.window.x.intValue(), node.scene.window.y.intValue() )
+		def scenePos = new Point( node.scene.x.intValue(), node.scene.y.intValue() )
+		def boundsInScene = node.localToScene node.boundsInLocal
+		def absX = windowPos.x + scenePos.x + boundsInScene.minX
+		def absY = windowPos.y + scenePos.y + boundsInScene.minY
+		[ ( absX + boundsInScene.width / 2 ).intValue(),
+				( absY + boundsInScene.height / 2 ).intValue() ] as Point
 	}
 
-}
-
-@Category( ArrayList )
-class ListAsPoint {
-	def getX( ) { this[ 0 ] as int }
-
-	def getY( ) { this[ 1 ] as int }
 }
 
 class FXApp extends Application {
