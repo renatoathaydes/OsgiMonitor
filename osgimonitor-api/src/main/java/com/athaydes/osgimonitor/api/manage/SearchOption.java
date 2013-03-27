@@ -1,6 +1,7 @@
 package com.athaydes.osgimonitor.api.manage;
 
 /**
+ * Artifact search options.
  * User: Renato
  */
 public enum SearchOption {

@@ -3,6 +3,7 @@ package com.athaydes.osgimonitor.api.manage;
 import java.util.Set;
 
 /**
+ * An artifact locator.
  * User: Renato
  */
 public interface ArtifactLocator {

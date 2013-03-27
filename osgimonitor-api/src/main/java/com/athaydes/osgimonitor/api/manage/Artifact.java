@@ -6,6 +6,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * An artifact represents a library which provides some required functionality.
+ * It may have its own dependencies which may have to be fetched in order for
+ * it to work.
  * User: Renato
  */
 public class Artifact {
