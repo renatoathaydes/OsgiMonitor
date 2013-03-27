@@ -51,6 +51,7 @@ public class JavaMonitorRegister implements MonitorRegister,
 
 	private static String[] usingBundleNames( ServiceReference serviceReference ) {
 		Bundle[] usingBundles = serviceReference.getUsingBundles();
+		if ( usingBundles == null ) usingBundles = new Bundle[0];
 		String[] result = new String[usingBundles.length];
 		for ( int i = 0; i < usingBundles.length; i++ ) {
 			result[i] = usingBundles[i].getSymbolicName();
