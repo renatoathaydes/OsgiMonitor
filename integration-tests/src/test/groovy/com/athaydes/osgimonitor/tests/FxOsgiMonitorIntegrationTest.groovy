@@ -1,7 +1,7 @@
 package com.athaydes.osgimonitor.tests
 
-import com.athaydes.osgimonitor.api.MonitorRegister
 import com.athaydes.automaton.Automaton
+import com.athaydes.osgimonitor.api.MonitorRegister
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.ops4j.pax.exam.Configuration

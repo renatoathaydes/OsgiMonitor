@@ -1,5 +1,6 @@
 package com.athaydes.osgimonitor.api;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
@@ -37,4 +38,13 @@ public class ServiceData {
 		return properties;
 	}
 
+	@Override
+	public String toString() {
+		return "ServiceData{" +
+				"bundleName='" + bundleName + '\'' +
+				", bundlesUsing=" + ( bundlesUsing == null ? null : Arrays.asList( bundlesUsing ) ) +
+				", state='" + state + '\'' +
+				", properties=" + properties +
+				'}';
+	}
 }

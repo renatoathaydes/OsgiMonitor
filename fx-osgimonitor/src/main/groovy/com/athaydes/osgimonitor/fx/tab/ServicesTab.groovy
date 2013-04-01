@@ -5,7 +5,6 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.beans.property.StringProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
-import javafx.collections.ObservableMap
 import javafx.scene.control.TableColumn
 import javafx.scene.control.TableColumn.CellDataFeatures
 import javafx.scene.control.TableView
@@ -40,7 +39,21 @@ class ServicesTab extends AsTab {
 			p.value.stateProp
 		} as Callback
 
-		table.columns.addAll nameCol, stateCol
+		def usingCol = new TableColumn( 'Bundles using' )
+		usingCol.minWidth = 200
+		usingCol.cellValueFactory = {
+			CellDataFeatures<ObservableServiceData, String> p ->
+				p.value.bundlesUsingProp
+		} as Callback
+
+		def classesCol = new TableColumn( 'Service classes' )
+		classesCol.minWidth = 200
+		classesCol.cellValueFactory = {
+			CellDataFeatures<ObservableServiceData, String> p ->
+				p.value.serviceClassesProp
+		} as Callback
+
+		table.columns.addAll nameCol, stateCol, usingCol, classesCol
 		table.items = servicesData
 
 		def root = new VBox()
@@ -51,25 +64,42 @@ class ServicesTab extends AsTab {
 	}
 
 	void update( ServiceData serviceData ) {
-		//def existing = servicesData.find { it.name == serviceData.get }
-		//if ( existing ) {
-		//	existing.stateProp.value = bundleData.state
-		//} else {
-		servicesData << new ObservableServiceData(
-				bundleName: serviceData.bundleName,
-				bundlesUsingProp: FXCollections.observableArrayList( serviceData.bundlesUsing ),
-				stateProp: new SimpleStringProperty( serviceData.state ),
-				propertiesProp: FXCollections.observableMap( serviceData.properties )
-		)
-		servicesData.sort { b1, b2 -> b1.bundleName.compareTo b2.bundleName }
-		//}
+		println "Updating Service: $serviceData"
+		def serviceClasses = Arrays.toString( serviceData.properties[ 'objectClass' ] )
+		def id = serviceData.properties[ 'service.id' ]
+		def existing = servicesData.find { it.serviceId == id }
+
+		if ( existing ) {
+			existing.stateProp.value = serviceData.state
+			existing.bundlesUsingProp.value = Arrays.toString( serviceData.bundlesUsing )
+			existing.stateProp.value = serviceData.state
+			existing.serviceClassesProp.value = serviceClasses
+		} else {
+			servicesData << new ObservableServiceData(
+					serviceId: id as int,
+					bundleName: serviceData.bundleName,
+					bundlesUsingProp: new SimpleStringProperty( Arrays.toString( serviceData.bundlesUsing ) ),
+					stateProp: new SimpleStringProperty( serviceData.state ),
+					serviceClassesProp: new SimpleStringProperty( serviceClasses )
+			)
+			servicesData.sort { b1, b2 -> b1.bundleName.compareTo b2.bundleName }
+		}
 	}
 
 	class ObservableServiceData {
-		String bundleName
-		ObservableList<String> bundlesUsingProp
-		StringProperty stateProp
-		ObservableMap propertiesProp
+		final int serviceId
+		final String bundleName
+		final StringProperty bundlesUsingProp
+		final StringProperty stateProp
+		final StringProperty serviceClassesProp
+
+		ObservableServiceData( Map args ) {
+			serviceId = args.serviceId
+			bundleName = args.bundleName
+			bundlesUsingProp = args.bundlesUsingProp
+			stateProp = args.stateProp
+			serviceClassesProp = args.serviceClassesProp
+		}
 	}
 
 }

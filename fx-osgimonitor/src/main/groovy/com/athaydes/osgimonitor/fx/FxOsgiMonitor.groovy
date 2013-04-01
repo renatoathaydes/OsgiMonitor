@@ -90,4 +90,5 @@ class OsgiMonitorApp extends Application implements OsgiMonitor {
 	void updateService( ServiceData serviceData ) {
 		servicesTab.update serviceData
 	}
+
 }

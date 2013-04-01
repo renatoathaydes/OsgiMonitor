@@ -55,7 +55,7 @@ class FxOsgiMonitorTest {
 
 		def servicesTable = monitor.scene.lookup( '#services-table' ) as TableView
 		assert servicesTable
-		assert servicesTable.columns.size() == 2
+		assert servicesTable.columns.size() == 4
 
 		def publishingColumn = servicesTable.columns[ 0 ] as TableColumn
 		assert publishingColumn.text == 'Publishing Bundle'
@@ -63,6 +63,11 @@ class FxOsgiMonitorTest {
 		def serviceStateColumn = servicesTable.columns[ 1 ] as TableColumn
 		assert serviceStateColumn.text == 'State'
 
+		def bundlesUsingColumn = servicesTable.columns[ 2 ] as TableColumn
+		assert bundlesUsingColumn.text == 'Bundles using'
+
+		def propsColumn = servicesTable.columns[ 3 ] as TableColumn
+		assert propsColumn.text == 'Service classes'
 	}
 
 	@Test
@@ -88,6 +93,7 @@ class FxOsgiMonitorTest {
 		monitors[ 0 ].updateBundle BundleData( 'Some test bundle', 'Active' )
 		monitors[ 0 ].updateBundle BundleData( 'Another bundle', 'Stopped' )
 		monitors[ 0 ].updateBundle BundleData( 'This bundle', 'Resolved' )
+		sleep 50
 
 		def bundlesTable = monitor.scene.lookup( '#bundles-table' ) as TableView
 		def nameColumn = bundlesTable.columns[ 0 ] as TableColumn
@@ -132,9 +138,20 @@ class FxOsgiMonitorTest {
 
 		assert monitors.size() == 1
 
-		monitors[ 0 ].updateService ServiceData( 'A', [ ] as String[], 'OK', [ : ] )
-		monitors[ 0 ].updateService ServiceData( 'B', [ ] as String[], 'BAD', [ : ] )
-		monitors[ 0 ].updateService ServiceData( 'C', [ ] as String[], 'FINE', [ : ] )
+		def serviceAProps = [ 'service.id': '1', 'objectClass': [ 'String' ] as String[] ]
+		def serviceBProps = [ 'service.id': '44', 'objectClass': [ 'Boolean' ] as String[] ]
+		def serviceCProps = [ 'service.id': '22', 'objectClass': [ 'A', 'B', 'C' ] as String[] ]
+
+		monitors[ 0 ].updateService ServiceData( 'A',
+				[ 'A', 'B' ] as String[], 'OK',
+				serviceAProps )
+		monitors[ 0 ].updateService ServiceData( 'B',
+				[ 'C' ] as String[], 'BAD',
+				serviceBProps )
+		monitors[ 0 ].updateService ServiceData( 'C',
+				[ 'D' ] as String[], 'FINE',
+				serviceCProps )
+		sleep 50
 
 		def mainTabPane = monitor.scene.lookup( '#main-tab-pane' ) as TabPane
 
@@ -157,6 +174,25 @@ class FxOsgiMonitorTest {
 		data1 = stateColumn.getCellData( 1 )
 		data2 = stateColumn.getCellData( 2 )
 		assert [ data0, data1, data2 ] == [ 'OK', 'BAD', 'FINE' ]
+
+		def usingColumn = servicesTable.columns[ 2 ] as TableColumn
+
+		data0 = usingColumn.getCellData( 0 )
+		data1 = usingColumn.getCellData( 1 )
+		data2 = usingColumn.getCellData( 2 )
+
+		assert [ data0, data1, data2 ] == [ [ 'A', 'B' ], [ 'C' ], [ 'D' ] ]
+				.collect { it.toString() }
+
+		def classesColumn = servicesTable.columns[ 3 ] as TableColumn
+
+		data0 = classesColumn.getCellData( 0 )
+		data1 = classesColumn.getCellData( 1 )
+		data2 = classesColumn.getCellData( 2 )
+
+		assert [ data0, data1, data2 ] == [
+				serviceAProps, serviceBProps, serviceCProps ]
+				.collect { Arrays.toString( it[ 'objectClass' ] ) }
 
 	}
 
