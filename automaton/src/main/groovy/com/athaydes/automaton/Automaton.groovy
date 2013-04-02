@@ -14,7 +14,7 @@ import static com.athaydes.internal.RobotTypingUtil.robotCode
 class Automaton<T extends Automaton> {
 
 	protected final robot = new Robot()
-	static final DEFAULT = com.athaydes.automaton.Speed.MEDIUM
+	static final DEFAULT = Speed.FAST
 	private static Automaton instance
 
 	static synchronized T getUser( ) {

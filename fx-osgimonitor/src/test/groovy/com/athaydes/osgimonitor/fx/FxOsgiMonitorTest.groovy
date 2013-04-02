@@ -10,6 +10,8 @@ import javafx.scene.control.Label
 import javafx.scene.control.TabPane
 import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 
 /**
@@ -18,18 +20,37 @@ import org.junit.Test
  */
 class FxOsgiMonitorTest {
 
-	@Test
-	void testMainScreenContainsAllItems( ) {
-		def register = [ register: { true } ] as MonitorRegister
+	def monitor
+	List<OsgiMonitor> monitors = [ ]
 
-		def app = new OsgiMonitorApp()
+	@Before
+	void setup( ) {
+		def register = [
+				register: { OsgiMonitor osgiMonitor ->
+					monitors << osgiMonitor
+					return true
+				}
+		] as MonitorRegister
 
 		// mock Launcher static method
 		Launcher.metaClass.'static'.launchApplication = {
-			FXApp.startApp app
+			FXApp.startApp new OsgiMonitorApp()
 		}
 
-		def monitor = new FxOsgiMonitor( register )
+		monitor = new FxOsgiMonitor( register )
+	}
+
+	@After
+	void end( ) {
+		sleep 500
+		FXApp.close()
+		sleep 500
+
+	}
+
+	@Test
+	void testMainScreenContainsAllItems( ) {
+		println "Running testMainScreenContainsAllItems"
 
 		// just ensure everything is on the screen
 		def mainTabPane = monitor.scene.lookup( '#main-tab-pane' ) as TabPane
@@ -73,21 +94,7 @@ class FxOsgiMonitorTest {
 	@Test
 	@Newify( BundleData )
 	void testBundleDataIsUpdated( ) {
-		List<OsgiMonitor> monitors = [ ]
-		def register = [
-				register: { OsgiMonitor osgiMonitor ->
-					monitors << osgiMonitor
-					return true
-				}
-		] as MonitorRegister
-
-		// mock Launcher static method
-		Launcher.metaClass.'static'.launchApplication = {
-			FXApp.startApp new OsgiMonitorApp()
-		}
-
-		def monitor = new FxOsgiMonitor( register )
-
+		println "Running testBundleDataIsUpdated"
 		assert monitors.size() == 1
 
 		monitors[ 0 ].updateBundle BundleData( 'Some test bundle', 'Active' )
@@ -121,21 +128,7 @@ class FxOsgiMonitorTest {
 	@Test
 	@Newify( ServiceData )
 	void testServiceDataIsUpdated( ) {
-		List<OsgiMonitor> monitors = [ ]
-		def register = [
-				register: { OsgiMonitor osgiMonitor ->
-					monitors << osgiMonitor
-					return true
-				}
-		] as MonitorRegister
-
-		// mock Launcher static method
-		Launcher.metaClass.'static'.launchApplication = {
-			FXApp.startApp new OsgiMonitorApp()
-		}
-
-		def monitor = new FxOsgiMonitor( register )
-
+		println "Running testServiceDataIsUpdated"
 		assert monitors.size() == 1
 
 		def serviceAProps = [ 'service.id': '1', 'objectClass': [ 'String' ] as String[] ]

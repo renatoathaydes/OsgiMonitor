@@ -63,7 +63,7 @@
 				<version>${maven.bundle.plugin.version}</version>
 				<configuration>
 					<instructions>
-						<Export-Package>!*</Export-Package>
+						<Export-Package>com.athaydes.osgimonitor.fx.export*</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>

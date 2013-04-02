@@ -33,7 +33,7 @@ class FxOsgiMonitor {
 	FxOsgiMonitor( MonitorRegister monitorRegister ) {
 		this.monitorRegister = monitorRegister
 		Launcher.launchApplication()
-		def app = OsgiMonitorApp.appFuture.poll( 5, TimeUnit.SECONDS )
+		def app = OsgiMonitorApp.instance
 		assert app
 		scene = app.scene
 		monitorRegister.register app
@@ -51,11 +51,17 @@ class Launcher {
 
 class OsgiMonitorApp extends Application implements OsgiMonitor {
 
-	static appFuture = new ArrayBlockingQueue<OsgiMonitorApp>( 1 )
+	private static appFuture = new ArrayBlockingQueue<OsgiMonitorApp>( 1 )
+	static OsgiMonitorApp instance
 
 	final bundlesTab = new BundlesTab()
 	final servicesTab = new ServicesTab()
 	def Scene scene
+
+	synchronized static OsgiMonitorApp getInstance( ) {
+		if ( instance ) instance
+		else instance = appFuture.poll( 5, TimeUnit.SECONDS )
+	}
 
 	@Override
 	void start( Stage stage ) {

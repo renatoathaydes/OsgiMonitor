@@ -68,7 +68,9 @@ class FXApp extends Application {
 	}
 
 	static void close( ) {
-		if ( stage ) Platform.runLater { stage.close() }
+		println "FXAutomaton: Stopping FxApp"
+		if ( stage ) Platform.runLater { stage.hide() }
+		stageFuture?.clear()
 	}
 
 	static void startApp( Application app ) {
@@ -82,5 +84,6 @@ class FXApp extends Application {
 		primaryStage.title = 'FXAutomaton Stage'
 		stageFuture.add primaryStage
 		primaryStage.show()
+		primaryStage.toFront()
 	}
 }

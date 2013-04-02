@@ -1,7 +1,10 @@
 package com.athaydes.osgimonitor.tests
 
-import com.athaydes.automaton.Automaton
+import com.athaydes.automaton.FXAutomaton
 import com.athaydes.osgimonitor.api.MonitorRegister
+import com.athaydes.osgimonitor.fx.export.SceneProvider
+import javafx.scene.Scene
+import javafx.scene.control.TableView
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.ops4j.pax.exam.Configuration
@@ -27,6 +30,7 @@ class FxOsgiMonitorIntegrationTest {
 
 	@Inject BundleContext context
 	@Inject MonitorRegister monitorRegister
+	@Inject SceneProvider sceneProvider
 
 	final osgiMonitorVersion = "0.0.1-SNAPSHOT"
 
@@ -50,7 +54,9 @@ class FxOsgiMonitorIntegrationTest {
 
 	@Test
 	void fxMonitorDetectsEvents( ) {
-		Automaton.user.pause( 1000 ).moveTo( 500, 500 )
+		Scene scene = sceneProvider.scene
+		def servicesTable = scene.lookup( '#services-table' ) as TableView
+		FXAutomaton.user.moveTo( servicesTable )
 		sleep 5000
 	}
 
