@@ -82,8 +82,8 @@ class FXApp extends Application {
 	void start( Stage primaryStage ) throws Exception {
 		primaryStage.scene = new Scene( new VBox() )
 		primaryStage.title = 'FXAutomaton Stage'
-		stageFuture.add primaryStage
 		primaryStage.show()
 		primaryStage.toFront()
+		stageFuture.add primaryStage
 	}
 }
