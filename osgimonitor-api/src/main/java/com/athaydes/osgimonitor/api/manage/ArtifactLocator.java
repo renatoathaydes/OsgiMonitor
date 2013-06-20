@@ -10,22 +10,37 @@ public interface ArtifactLocator {
 
 
 	/**
-	 * Find all artifacts matching the given keyword(s) in any field.
+	 * Find all artifacts containing a class with the given name.
 	 *
-	 * @param keywords separated by white-spaces or commas
+	 * @param className name of the class
 	 * @return artifacts
 	 */
-	Set<Artifact> findArtifacts( String keywords );
+	Set<Artifact> findByClassName( String className );
 
 	/**
-	 * Find all artifacts matching the given parameters
+	 * Find all artifacts matching the given groupdId.
+	 *
+	 * @param groupId the group ID
+	 * @return artifacts
+	 */
+	Set<Artifact> findByGroupId( String groupId );
+
+	/**
+	 * Find all artifacts matching the given artifactId.
+	 *
+	 * @param artifactId the artifact ID
+	 * @return artifacts
+	 */
+	Set<Artifact> findByArtifactId( String artifactId );
+
+	/**
+	 * Find a single artifact matching the given parameters
 	 *
 	 * @param groupId    the group ID
 	 * @param artifactId the artifact ID
-	 * @param option     to search with
-	 * @return artifacts
+	 * @return artifact if any, or null
 	 */
-	Set<Artifact> findArtifacts( String groupId, String artifactId, SearchOption option );
+	Artifact findArtifact( String groupId, String artifactId );
 
 	/**
 	 * @param artifact the artifact

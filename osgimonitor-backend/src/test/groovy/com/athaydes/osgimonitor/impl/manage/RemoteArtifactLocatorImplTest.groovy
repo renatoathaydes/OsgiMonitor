@@ -4,18 +4,13 @@ import com.athaydes.osgimonitor.api.manage.RemoteArtifactLocator
 import com.athaydes.osgimonitor.api.manage.VersionedArtifact
 import spock.lang.Specification
 
-import static com.athaydes.osgimonitor.api.manage.SearchOption.EXACT
-
 /**
  *
  * User: Renato
  */
 class RemoteArtifactLocatorImplTest extends Specification {
 
-	def "Maven Repository XML responses can be parsed correctly"( ) {
-		given:
-		"An example Maven XML response"
-		def xml = '''<?xml version="1.0" encoding="UTF-8"?>
+	private static final String SAMPLE_MAVEN_RESPONSE = '''<?xml version="1.0" encoding="UTF-8"?>
 		<response>
 			<lst name="responseHeader">
 				<int name="status">0</int>
@@ -64,10 +59,18 @@ class RemoteArtifactLocatorImplTest extends Specification {
 		</response>
 		'''
 
+	def "Maven Repository XML responses can be parsed correctly"( ) {
+		given:
+		"A Maven Repository XML response"
+		def sampleXml = SAMPLE_MAVEN_RESPONSE
+
 		when:
-		List<VersionedArtifact> artifacts = new RemoteArtifactLocatorImpl().parseMavenXmlResponse( xml );
+		"The response is parsed"
+		List<VersionedArtifact> artifacts = new RemoteArtifactLocatorImpl()
+				.parseMavenXmlResponse( sampleXml );
 
 		then:
+		"All information from the response is correctly understood"
 		artifacts != null
 		artifacts.size() == 1
 		artifacts[ 0 ].groupId == 'org.junit'
@@ -75,19 +78,20 @@ class RemoteArtifactLocatorImplTest extends Specification {
 		artifacts[ 0 ].version == '4.11'
 	}
 
-	def "A list of dependencies can be fetched by entering exact groupId and artifactId"( ) {
+	def "A single dependency can be fetched by entering a groupId and artifactId"( ) {
 		given:
+		"A RemoteArtifactLocatorImpl"
 		RemoteArtifactLocator locator = new RemoteArtifactLocatorImpl()
 
 		when:
-		def artifacts = locator.findArtifacts( groupId, artifactId, EXACT )
+		"An exact match is requested for a groupId and artifactId"
+		def artifact = locator.findArtifact( groupId, artifactId )
 
 		then:
-		artifacts != null
-		artifacts.each {
-			assert it.groupId == groupId
-			assert it.artifactId == artifactId
-		}
+		"The artifact is correctly located"
+		artifact != null
+		artifact.groupId == groupId
+		artifact.artifactId == artifactId
 
 		where:
 		groupId               | artifactId
@@ -96,4 +100,63 @@ class RemoteArtifactLocatorImplTest extends Specification {
 
 	}
 
+	def "A set of artifacts can be found by entering a class name"( ) {
+		given:
+		"A RemoteArtifactLocatorImpl"
+		RemoteArtifactLocator locator = new RemoteArtifactLocatorImpl()
+
+		when:
+		"A search by class name is made"
+		def artifacts = locator.findByClassName( className )
+
+		then:
+		"A number of artifacts are found"
+		artifacts != null
+		!artifacts.isEmpty()
+		artifacts.collect { "${it.artifactId}:${it.groupId}" }.unique().size() == artifacts.size()
+
+		where:
+		className << [ "StringUtils", "HttpResponse" ]
+	}
+
+	def "A set of artifacts can be found by entering a groupId"( ) {
+		given:
+		"A RemoteArtifactLocatorImpl"
+		RemoteArtifactLocator locator = new RemoteArtifactLocatorImpl()
+
+		when:
+		"A search by groupId is made"
+		def artifacts = locator.findByGroupId( groupId )
+
+		then:
+		"A number of artifacts are found"
+		artifacts != null
+		!artifacts.isEmpty()
+		artifacts.each { assert it.groupId == groupId }
+		artifacts.collect { it.artifactId }.unique().size() == artifacts.size()
+
+		where:
+		groupId << [ "com.google.inject", "junit" ]
+	}
+
+	def "A set of artifacts can be found by entering an artifactId"( ) {
+		given:
+		"A RemoteArtifactLocatorImpl"
+		RemoteArtifactLocator locator = new RemoteArtifactLocatorImpl()
+
+		when:
+		"A search by artifactId is made"
+		def artifacts = locator.findByArtifactId( artifactId )
+
+		then:
+		"A number of artifacts are found (note that uniqueness requires also groupId)"
+		artifacts != null
+		!artifacts.isEmpty()
+		//println artifacts.collect { "${it.groupId}:${it.artifactId}" }
+		artifacts.each { assert it.artifactId == artifactId }
+		artifacts.collect { it.groupId }.unique().size() == artifacts.size()
+
+		where:
+		artifactId << [ "guice", "junit" ]
+	}
 }
