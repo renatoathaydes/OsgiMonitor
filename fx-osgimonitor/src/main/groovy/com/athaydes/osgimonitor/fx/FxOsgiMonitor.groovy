@@ -60,7 +60,7 @@ class OsgiMonitorApp extends Application implements OsgiMonitor {
 
 	synchronized static OsgiMonitorApp getInstance( ) {
 		if ( instance ) instance
-		else instance = appFuture.poll( 5, TimeUnit.SECONDS )
+		else instance = appFuture.poll( 15, TimeUnit.SECONDS )
 	}
 
 	@Override

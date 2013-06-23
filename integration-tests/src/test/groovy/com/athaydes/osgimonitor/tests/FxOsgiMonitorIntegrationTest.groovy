@@ -4,7 +4,6 @@ import com.athaydes.automaton.FXAutomaton
 import com.athaydes.osgimonitor.api.MonitorRegister
 import com.athaydes.osgimonitor.fx.export.SceneProvider
 import javafx.scene.Scene
-import javafx.scene.control.TableView
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.ops4j.pax.exam.Configuration
@@ -55,8 +54,13 @@ class FxOsgiMonitorIntegrationTest {
 	@Test
 	void fxMonitorDetectsEvents( ) {
 		Scene scene = sceneProvider.scene
-		def servicesTable = scene.lookup( '#services-table' ) as TableView
-		FXAutomaton.user.moveTo( servicesTable )
+		def mainTabPane = scene.lookup( '#main-tab-pane' )
+		def tabLabels = mainTabPane.lookupAll( 'Label' )
+		assert tabLabels.isEmpty() == false
+		def servicesLabel = tabLabels.find { it.text == 'Services' }
+		assert servicesLabel
+		FXAutomaton.user.clickOn( servicesLabel )
+
 		sleep 5000
 	}
 
