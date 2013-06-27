@@ -9,8 +9,17 @@ import java.util.Set;
  * User: Renato
  */
 public class LocalArtifactLocator implements ArtifactLocator {
+
+	private FilesHelper filesHelper = new FilesHelper();
+
+	public void setFilesHelper( FilesHelper filesHelper ) {
+		this.filesHelper = filesHelper;
+	}
+
 	@Override
 	public Set<Artifact> findByClassName( String className ) {
+		String mavenHome = filesHelper.getMavenHome();
+		System.out.println( mavenHome );
 		return null;  //To change body of implemented methods use File | Settings | File Templates.
 	}
 

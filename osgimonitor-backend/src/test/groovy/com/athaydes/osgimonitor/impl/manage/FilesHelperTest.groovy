@@ -33,7 +33,8 @@ class FilesHelperTest extends Specification {
 
 		when:
 		"I ask for all files with an extension"
-		def result = FilesHelper.findAllFilesWithExtension( extension, rootPath )
+		def result = new FilesHelper()
+				.findAllFilesWithExtension( extension, rootPath )
 
 		then:
 		"I get all expected files with that extension"
@@ -56,5 +57,67 @@ class FilesHelperTest extends Specification {
 		"m"       | [ [ f: [ 'm.m' ] ], [ d: [ 'm' ] ], [ d: [ 'm', 'n' ] ], [ f: [ 'm', 'n', 'o.m' ] ] ] | [ [ 'm.m' ], [ 'm', 'n', 'o.m' ] ]
 	}
 
+	def "Maven Home can be determined correctly when M2_HOME is defined"( ) {
+		given:
+		"A filesHelper in an environment with a known M2_HOME variable"
+		final KNOWN_M2_HOME_VALUE = File.createTempDir().absolutePath
+		def filesHelper = new FilesHelper() {
+			String getMavenHomeEnvVariable( ) { KNOWN_M2_HOME_VALUE }
+		}
 
+		when:
+		"I try to get the Maven Home"
+		def result = filesHelper.getMavenHome()
+
+		then:
+		"I get the value of M2_HOME"
+		result == KNOWN_M2_HOME_VALUE
+
+		cleanup:
+		try { new File( KNOWN_M2_HOME_VALUE ).delete() }
+		catch ( ignored ) {}
+	}
+
+	def "Maven Home can be determined correctly when M2_HOME is NOT defined"( ) {
+		given:
+		"An environment with no M2_HOME variable but existing {user.home}/.m2 folder"
+		final USER_HOME = File.createTempDir().absolutePath
+		final USER_HOME_M2 = USER_HOME + File.separator + '.m2'
+		new File( USER_HOME_M2 ).mkdir()
+
+		and:
+		"A FilesHelper"
+		def filesHelper = new FilesHelper() {
+			String getMavenHomeEnvVariable( ) { null }
+
+			String getUserHome( ) { USER_HOME }
+		}
+
+		when:
+		"I try to get the Maven Home"
+		def result = filesHelper.getMavenHome()
+
+		then:
+		"I get the value of {user.home}/.m2"
+		result == USER_HOME_M2
+	}
+
+	def "Maven Home cannot be determined if no M2_HOME is defined and {user.home}/.m2 does not exist"( ) {
+		given:
+		"A FilesHelper in an environment where M2_HOME is not defined and {user.home}/.m2 does not exist"
+		def filesHelper = new FilesHelper() {
+			String getMavenHomeEnvVariable( ) { null }
+
+			String getUserHome( ) { "__NON_EXISTING_LOCATION__" }
+		}
+
+		when:
+		"I try to get the Maven Home"
+		filesHelper.getMavenHome()
+
+		then:
+		"A RuntimeException is thrown with a nice message to the user"
+		def e = thrown( RuntimeException )
+		!e.message.empty
+	}
 }

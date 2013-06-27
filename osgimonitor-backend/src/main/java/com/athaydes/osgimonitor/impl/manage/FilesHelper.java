@@ -1,5 +1,6 @@
 package com.athaydes.osgimonitor.impl.manage;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -14,7 +15,7 @@ public class FilesHelper {
 
 	private static final int MAX_DEPTH_TO_VISIT = 6;
 
-	public static List<Path> findAllFilesWithExtension(
+	public List<Path> findAllFilesWithExtension(
 			final String extension, final Path start )
 			throws IOException {
 		final String dotExt = "." + extension;
@@ -35,6 +36,35 @@ public class FilesHelper {
 				} );
 
 		return result;
+	}
+
+	public String getMavenHome() {
+		String m2Home = getMavenHomeEnvVariable();
+		System.out.println( "M2_HOME: " + m2Home );
+		if ( dirExists( m2Home ) ) {
+			return m2Home;
+		} else {
+			String userHome = getUserHome();
+			System.out.println( "User HOME: " + userHome );
+			String mavenHome = userHome + File.separator + ".m2";
+			if ( dirExists( mavenHome ) ) {
+				return mavenHome;
+			} else {
+				throw new RuntimeException( "Cannot find the Maven Home" );
+			}
+		}
+	}
+
+	protected String getMavenHomeEnvVariable() {
+		return System.getenv( "M2_HOME" );
+	}
+
+	protected String getUserHome() {
+		return System.getProperty( "user.home" );
+	}
+
+	private static boolean dirExists( String m2Home ) {
+		return m2Home != null && new File( m2Home ).exists();
 	}
 
 }
