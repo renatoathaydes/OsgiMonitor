@@ -2,7 +2,9 @@ package com.athaydes.osgimonitor.impl.manage
 
 import spock.lang.Specification
 
-import java.nio.file.Paths
+import static com.athaydes.osgimonitor.impl.CommonTestFunctions.createFileTreeWith
+import static com.athaydes.osgimonitor.impl.CommonTestFunctions.list2path
+import static com.athaydes.osgimonitor.impl.CommonTestFunctions.safeDelete
 
 /**
  *
@@ -13,38 +15,21 @@ class FilesHelperTest extends Specification {
 	def "All files with a certain extension can be found in a directory tree"( ) {
 		given:
 		"A file tree of known contents"
-		final targetPath = Paths.get( 'target' )
-		targetPath.toFile().mkdir() // should be already made
-		final rootDir = [ this.class.simpleName ]
-		final rootPath = targetPath.resolve( rootDir[ 0 ] )
-		assert rootPath.toFile().mkdir()
-
-		def list2path = { list ->
-			Paths.get( 'target', ( ( rootDir + list ) as String[] ) )
-		}
-
-		def paths = files.collect {
-			def path = list2path( it.d ?: it.f )
-			println "Created path ${path.toAbsolutePath()}"
-			if ( it.d ) assert path.toFile().mkdir()
-			else assert path.toFile().createNewFile()
-			return path
-		}
+		def paths = createFileTreeWith( files, FilesHelperTest )
 
 		when:
 		"I ask for all files with an extension"
 		def result = new FilesHelper()
-				.findAllFilesWithExtension( extension, rootPath )
+				.findAllFilesWithExtension( extension, paths.first() )
 
 		then:
 		"I get all expected files with that extension"
-		result as Set == expected.collect { list2path( it ) } as Set
+		result as Set == expected.collect { list2path( [ this.class.simpleName ] + it ) } as Set
 
 		cleanup:
 		paths?.reverse()?.each {
-			try { it.toFile().delete() } catch ( e ) { e.printStackTrace() }
+			safeDelete it.toFile()
 		}
-		rootPath.toFile().delete()
 
 		where:
 		extension | files /* d is dir, f is file */                                                       | expected
@@ -74,8 +59,7 @@ class FilesHelperTest extends Specification {
 		result == KNOWN_M2_HOME_VALUE
 
 		cleanup:
-		try { new File( KNOWN_M2_HOME_VALUE ).delete() }
-		catch ( ignored ) {}
+		safeDelete KNOWN_M2_HOME_VALUE
 	}
 
 	def "Maven Home can be determined correctly when M2_HOME is NOT defined"( ) {
@@ -100,6 +84,10 @@ class FilesHelperTest extends Specification {
 		then:
 		"I get the value of {user.home}/.m2"
 		result == USER_HOME_M2
+
+		cleanup:
+		safeDelete USER_HOME_M2
+		safeDelete USER_HOME
 	}
 
 	def "Maven Home cannot be determined if no M2_HOME is defined and {user.home}/.m2 does not exist"( ) {

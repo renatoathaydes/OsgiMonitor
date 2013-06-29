@@ -3,6 +3,12 @@ package com.athaydes.osgimonitor.impl.manage;
 import com.athaydes.osgimonitor.api.manage.Artifact;
 import com.athaydes.osgimonitor.api.manage.ArtifactLocator;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -18,9 +24,17 @@ public class LocalArtifactLocator implements ArtifactLocator {
 
 	@Override
 	public Set<Artifact> findByClassName( String className ) {
+		Set<Artifact> result = new HashSet<>();
 		String mavenHome = filesHelper.getMavenHome();
-		System.out.println( mavenHome );
-		return null;  //To change body of implemented methods use File | Settings | File Templates.
+		Path repositoryDir = Paths.get( mavenHome, "repository" );
+		try {
+			List<Path> jars = filesHelper.findAllFilesWithExtension( "jar", repositoryDir );
+
+		} catch ( IOException e ) {
+
+		}
+
+		return result;
 	}
 
 	@Override
