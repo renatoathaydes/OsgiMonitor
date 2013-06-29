@@ -15,7 +15,7 @@ class FilesHelperTest extends Specification {
 	def "All files with a certain extension can be found in a directory tree"( ) {
 		given:
 		"A file tree of known contents"
-		def paths = createFileTreeWith( files, FilesHelperTest )
+		def paths = createFileTreeWith( files, 'target', FilesHelperTest.class.simpleName )
 
 		when:
 		"I ask for all files with an extension"
@@ -24,7 +24,9 @@ class FilesHelperTest extends Specification {
 
 		then:
 		"I get all expected files with that extension"
-		result as Set == expected.collect { list2path( [ this.class.simpleName ] + it ) } as Set
+		result as Set == expected.collect {
+			list2path( [ 'target', this.class.simpleName ] + it )
+		} as Set
 
 		cleanup:
 		paths?.reverse()?.each {

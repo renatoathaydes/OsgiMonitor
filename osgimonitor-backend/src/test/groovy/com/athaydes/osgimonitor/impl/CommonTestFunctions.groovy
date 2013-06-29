@@ -10,38 +10,56 @@ import java.util.jar.JarFile
  */
 class CommonTestFunctions {
 
+	/**
+	 * Converts a list or an array of Strings to a Path
+	 * @param list or array of Strings
+	 * @return Path
+	 */
 	static Path list2path( list ) {
-		Paths.get( 'target', ( list as String[] ) )
+		if ( list.size() == 0 ) return null
+		Paths.get( list.first(), ( list.tail() as String[] ) )
 	}
 
-	static createFileTreeWith( files, Class testClass ) {
-		final targetPath = Paths.get( 'target' )
-		targetPath.toFile().mkdir()
-		final rootPath = targetPath.resolve( testClass.simpleName )
-		rootPath.toFile().delete()
-		assert rootPath.toFile().mkdir()
+	/**
+	 * Creates a file tree with the given files.
+	 * <p/>
+	 * Usage Example:
+	 * <p/>
+	 * <code>
+	 * createFileTreeWith( [ <br/>
+	 * [ d: [ 'dir-1' ] ], <br/>
+	 * [ f: [ 'dir-1', 'file.txt' ] ] ] )
+	 * </code>
+	 * @param files a list of map entries, each with a single key, either 'd'
+	 * for directory or 'f' for file. The entry value is a sequence of Strings
+	 * representing the path.
+	 * @param target to be used as the root of the tree created
+	 * @return a list of Paths
+	 */
+	static createFileTreeWith( List files, String... target ) {
+		def targetPath = list2path( target )
+		safeDelete targetPath
+		targetPath.toFile().mkdirs()
 
-		[ rootPath ] + files.collect {
-			def path = list2path( [ testClass.simpleName ] + ( it.d ?: it.f ) )
+		[ targetPath ] + files.collect {
+			def path = list2path( target + ( it.d ?: it.f ) )
 			println "Created path ${path.toAbsolutePath()}"
 			if ( it.d ) assert path.toFile().mkdir()
-			else if ( it.f.last().endsWith( '.jar' ) )
-				assert createExecutableJar( path.toAbsolutePath().toString() )
-			else assert createEmptyFileFrom( path )
+			else assert path.toFile().createNewFile()
 			return path
 		}
 	}
 
-	static createEmptyFileFrom( Path path ) {
-		path.toFile().createNewFile()
-	}
-	static final ant = new AntBuilder()
 	static JarFile createExecutableJar( String jarName ) {
-		if ( !jarName.endsWith( '.jar' ) ) jarName += '.jar'
+		if ( !jarName.endsWith( '.jar' ) )
+			throw new RuntimeException( "Executable jar must have .jar " +
+					"extension but jarName has not: $jarName" )
 
 		def tempDir = File.createTempDir().absolutePath
 		println "Executable Jar Creator using tempDir: $tempDir"
 		def javaFile = 'Temp.java'
+
+		def ant = new AntBuilder()
 		ant.echo( file: tempDir + File.separator + javaFile, '''
 			class Temp {
 				public static void main( String[] args ) {
@@ -60,7 +78,7 @@ class CommonTestFunctions {
 	}
 
 	static safeDelete( file ) {
-		//final ant = new AntBuilder()
+		def ant = new AntBuilder()
 		ant.delete( file: file, dir: file )
 	}
 

@@ -20,7 +20,7 @@ public class JarInspector {
 	public JarFile[] filterJars( Collection<? extends Path> paths ) {
 		List<JarFile> result = new ArrayList<>();
 		for ( Path path : paths ) {
-			if ( path.getFileName().toString().endsWith( "jar" ) ) {
+			if ( path.getFileName().toString().endsWith( ".jar" ) ) {
 				try {
 					result.add( new JarFile( path.toFile(), false ) );
 				} catch ( IOException e ) {
