@@ -12,6 +12,34 @@ import static com.athaydes.osgimonitor.impl.CommonTestFunctions.safeDelete
  */
 class FilesHelperTest extends Specification {
 
+	def "The FilesHelper can determine if a file has a certain extension"( ) {
+		given:
+		"A certain file (instance of Path)"
+		def path = list2path( [ file ] )
+
+		when:
+		"I ask if a file has a certain extension"
+		println "Asking if $file has extension $extension"
+		def result = new FilesHelper().hasExtension( path, extension )
+
+		then:
+		"I get the expected answer"
+		result == expected
+
+		where:
+		file              | extension | expected
+		'someFile'        | 'ext'     | false
+		'anotherFile.ext' | 'ext'     | true
+		'notext'          | 'ext'     | false
+		'jar'             | 'jar'     | false
+		'jarjarjar'       | 'jar'     | false
+		'a.jar'           | 'jar'     | true
+		'a.jar.jar'       | 'jar'     | true
+		'not.a.jar.'      | 'jar.'    | false
+		'.jar'            | 'jar'     | false
+		'.no.jar'         | 'jar'     | false
+	}
+
 	def "All files with a certain extension can be found in a directory tree"( ) {
 		given:
 		"A file tree of known contents"

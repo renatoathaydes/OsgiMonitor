@@ -50,6 +50,13 @@ class CommonTestFunctions {
 		}
 	}
 
+	/**
+	 * Creates and returns an executable jar with the given name.
+	 * A single class is created and compiled, then included in the jar
+	 * with a small manifest file.
+	 * @param jarName name of the jar to create
+	 * @return JarFile
+	 */
 	static JarFile createExecutableJar( String jarName ) {
 		if ( !jarName.endsWith( '.jar' ) )
 			throw new RuntimeException( "Executable jar must have .jar " +
@@ -77,7 +84,13 @@ class CommonTestFunctions {
 		return new JarFile( jarName, false )
 	}
 
-	static safeDelete( file ) {
+	/**
+	 * Safely deletes the given file.
+	 * If it's a directory, all of its contents will be deleted too.
+	 * @param file can be a file or directory. Will work with instances of
+	 * File or String
+	 */
+	static void safeDelete( file ) {
 		def ant = new AntBuilder()
 		ant.delete( file: file, dir: file )
 	}

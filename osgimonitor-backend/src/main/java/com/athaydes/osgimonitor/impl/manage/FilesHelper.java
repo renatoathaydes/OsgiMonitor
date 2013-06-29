@@ -15,10 +15,16 @@ public class FilesHelper {
 
 	private static final int MAX_DEPTH_TO_VISIT = 6;
 
+	public boolean hasExtension( Path path, String extension ) {
+		String[] parts = path.getFileName().toString().split( "\\." );
+		return parts.length > 1 &&
+				!parts[0].isEmpty() &&
+				parts[parts.length - 1].equals( extension );
+	}
+
 	public List<Path> findAllFilesWithExtension(
 			final String extension, final Path start )
 			throws IOException {
-		final String dotExt = "." + extension;
 		final List<Path> result = new ArrayList<>();
 
 		Files.walkFileTree(
@@ -28,7 +34,7 @@ public class FilesHelper {
 				new SimpleFileVisitor<Path>() {
 					@Override
 					public FileVisitResult visitFile( Path file, BasicFileAttributes attrs ) throws IOException {
-						if ( file.toString().endsWith( dotExt ) ) {
+						if ( hasExtension( file, extension ) ) {
 							result.add( file );
 						}
 						return FileVisitResult.CONTINUE;
