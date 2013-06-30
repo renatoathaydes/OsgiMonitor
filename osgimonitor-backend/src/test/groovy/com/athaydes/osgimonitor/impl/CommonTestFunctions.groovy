@@ -69,22 +69,27 @@ class CommonTestFunctions {
 		def tempDir = File.createTempDir().absolutePath
 		println "Executable Jar Creator using tempDir: $tempDir"
 
-		def classNames = args.get( 'classNames', [ 'Temp' ] ) as List<String>
-		if ( classNames.isEmpty() )
-			throw new RuntimeException( 'classNames cannot be empty' )
-		def mainClass = args.get( 'mainClass', classNames[ 0 ] )
-
-		createJavaFiles( classNames, tempDir )
-
 		def ant = new AntBuilder()
-		ant.javac( srcdir: tempDir, includes: '**/*.java', fork: 'true' )
-		ant.jar( destfile: jarName, compress: true, index: true ) {
-			fileset( dir: tempDir, includes: '**/*.class' )
-			manifest {
-				attribute( name: 'Main-Class', value: mainClass )
+		try {
+			def classNames = args.get( 'classNames', [ 'Temp' ] ) as List<String>
+			if ( classNames.isEmpty() )
+				throw new RuntimeException( 'classNames cannot be empty' )
+			def mainClass = args.get( 'mainClass', classNames[ 0 ] )
+
+			createJavaFiles( classNames, tempDir )
+
+			ant.javac( srcdir: tempDir, includes: '**/*.java', fork: 'true' )
+			ant.jar( destfile: jarName, compress: true, index: true ) {
+				fileset( dir: tempDir, includes: '**/*.class' )
+				manifest {
+					attribute( name: 'Main-Class', value: mainClass )
+				}
 			}
+		} catch ( e ) {
+			throw e
+		} finally {
+			ant.delete( dir: tempDir )
 		}
-		ant.delete( dir: tempDir )
 		return new JarFile( jarName, false )
 	}
 
