@@ -58,4 +58,25 @@ class JarInspectorTest extends Specification {
 				[ f: [ 'a', 's', 's.jar' ] ] ]    | [ [ 'b', 'b.jar' ], [ 'a', 's', 's.jar' ] ]
 	}
 
+	def "All classes inside a JAR can be discovered"( ) {
+		given:
+		"A JAR file containing a known set of classes"
+		def pathToJar = Paths.get(
+				'target', JarInspectorTest.class.simpleName, 'the.jar' )
+				.toAbsolutePath().toString()
+		def jar = createExecutableJar( pathToJar, [ classNames: classes ] )
+
+		when:
+		"I ask for all classes inside the JAR"
+		def result = new JarInspector().findAllClassNamesIn( jar )
+
+		then:
+		"I get the expected set of classes"
+		assert result as Set == result as Set
+
+		where:
+		classes << [ 'com.eviware.Example', 'org.apache.Test' ]
+
+	}
+
 }

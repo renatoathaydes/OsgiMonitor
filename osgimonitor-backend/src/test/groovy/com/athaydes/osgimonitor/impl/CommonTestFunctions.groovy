@@ -55,33 +55,81 @@ class CommonTestFunctions {
 	 * A single class is created and compiled, then included in the jar
 	 * with a small manifest file.
 	 * @param jarName name of the jar to create
+	 * @param args optional arguments are: <ul>
+	 * <li>classNames: name of classes to create into the jar</li>
+	 * <li>mainClass: name of the main class (must be contained in classNames)</li>
+	 * </ul>
 	 * @return JarFile
 	 */
-	static JarFile createExecutableJar( String jarName ) {
+	static JarFile createExecutableJar( String jarName, Map args = [ : ] ) {
 		if ( !jarName.endsWith( '.jar' ) )
 			throw new RuntimeException( "Executable jar must have .jar " +
 					"extension but jarName has not: $jarName" )
 
 		def tempDir = File.createTempDir().absolutePath
 		println "Executable Jar Creator using tempDir: $tempDir"
-		def javaFile = 'Temp.java'
+
+		def classNames = args.get( 'classNames', [ 'Temp' ] ) as List<String>
+		if ( classNames.isEmpty() )
+			throw new RuntimeException( 'classNames cannot be empty' )
+		def mainClass = args.get( 'mainClass', classNames[ 0 ] )
+
+		createJavaFiles( classNames, tempDir )
 
 		def ant = new AntBuilder()
-		ant.echo( file: tempDir + File.separator + javaFile, '''
-			class Temp {
-				public static void main( String[] args ) {
-					System.out.println( "Hello" );
-				}
-			} ''' )
-		ant.javac( srcdir: tempDir, includes: javaFile, fork: 'true' )
+		ant.javac( srcdir: tempDir, includes: '**/*.java', fork: 'true' )
 		ant.jar( destfile: jarName, compress: true, index: true ) {
-			fileset( dir: tempDir, includes: '*.class' )
+			fileset( dir: tempDir, includes: '**/*.class' )
 			manifest {
-				attribute( name: 'Main-Class', value: javaFile - '.java' )
+				attribute( name: 'Main-Class', value: mainClass )
 			}
 		}
 		ant.delete( dir: tempDir )
 		return new JarFile( jarName, false )
+	}
+
+	private static void createJavaFiles( List<String> classNames, String rootDir ) {
+		classNames.each { className ->
+			def pkgAndClassName = splitPackageAndClassName( className )
+			def javaFile = pkgAndClassName.simpleClassName + '.java'
+			def pkgDirs = pkgAndClassName.packages.join( File.separator )
+			assert createFile( [ rootDir, pkgDirs, javaFile ].join( File.separator ),
+					getStandardJavaCode( className ) )
+		}
+	}
+
+	static getStandardJavaCode( String className ) {
+		def pkgAndClassName = splitPackageAndClassName( className )
+		def packageDeclaration = pkgAndClassName.packages ?
+			"package ${pkgAndClassName.packages.join( '.' )};" :
+			'// default package'
+
+		"""$packageDeclaration
+		|class ${pkgAndClassName.simpleClassName} {
+		|	public static void main( String[] args ) {
+		|		System.out.println( \"$className\" );
+		|	}
+		|} """.stripMargin()
+	}
+
+	static splitPackageAndClassName( String qualifiedClassName ) {
+		def parts = qualifiedClassName.split( /\./ )
+		[ packages: parts.size() > 1 ? parts[ 0..-2 ] : [ ],
+				simpleClassName: parts[ -1 ] ]
+	}
+
+	/**
+	 * Creates a file with the given fileName. Optionally, the contents
+	 * of the file can be given.
+	 * @param fileName name of the file. Can be a relative or absolute path
+	 * @param contents optional contents of the file
+	 * @return true if the file was created correctly
+	 */
+	static boolean createFile( String fileName, contents = '' ) {
+		println "Creating file $fileName"
+		def ant = new AntBuilder()
+		ant.echo( file: fileName, contents )
+		return new File( fileName ).exists()
 	}
 
 	/**
