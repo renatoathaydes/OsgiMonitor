@@ -61,8 +61,8 @@ class JarInspectorTest extends Specification {
 	def "All classes inside a JAR can be discovered"( ) {
 		given:
 		"A JAR file containing a known set of classes"
-		def pathToJar = Paths.get(
-				'target', JarInspectorTest.class.simpleName, 'the.jar' )
+		def targetPath = Paths.get( 'target', JarInspectorTest.class.simpleName )
+		def pathToJar = targetPath.resolve( 'the.jar' )
 				.toAbsolutePath().toString()
 		def jar = createExecutableJar( pathToJar, [ classNames: classes ] )
 
@@ -72,11 +72,35 @@ class JarInspectorTest extends Specification {
 
 		then:
 		"I get the expected set of classes"
-		assert result as Set == result as Set
+		assert result as Set == classes as Set
+
+		cleanup:
+		jar?.close()
+		safeDelete targetPath.toFile()
 
 		where:
-		classes << [ 'com.eviware.Example', 'org.apache.Test' ]
+		classes << [
+				[ 'SomeClass' ],
+				[ 'com.eviware.Example', 'org.apache.Test' ],
+				[ 'Class1', 'Class2', 'Class3' ]
+		]
 
+	}
+
+	def "The name of the class in a .class file can be found from the path to the file"( ) {
+		when:
+		def result = new JarInspector().fromClassFileToClassName( classFile )
+
+		then:
+		result == expected
+
+		where:
+		classFile                           | expected
+		'Abcdefghijkl.class'                | 'Abcdefghijkl'
+		'A.class'                           | 'A'
+		'h.class'                           | 'h'
+		'path/to/a/Class1.class'            | 'path.to.a.Class1'
+		"some${File.separator}Class2.class" | "some.Class2"
 	}
 
 }

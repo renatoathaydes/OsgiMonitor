@@ -99,11 +99,15 @@ class CommonTestFunctions {
 			def javaFile = pkgAndClassName.simpleClassName + '.java'
 			def pkgDirs = pkgAndClassName.packages.join( File.separator )
 			assert createFile( [ rootDir, pkgDirs, javaFile ].join( File.separator ),
-					getStandardJavaCode( className ) )
+					getSimplestCompilingJavaCode( className ) )
 		}
 	}
 
-	static getStandardJavaCode( String className ) {
+	/**
+	 * @param className qualified name of class in the returned java code
+	 * @return simplest possible compiling class which actually does something
+	 */
+	static getSimplestCompilingJavaCode( String className ) {
 		def pkgAndClassName = splitPackageAndClassName( className )
 		def packageDeclaration = pkgAndClassName.packages ?
 			"package ${pkgAndClassName.packages.join( '.' )};" :
@@ -117,7 +121,15 @@ class CommonTestFunctions {
 		|} """.stripMargin()
 	}
 
+	/**
+	 * @param qualifiedClassName
+	 * @return a map containing the <code>packages</code> in a list
+	 * and the <code>simpleClassName</code> as a String from the given
+	 * qualifiedClassName
+	 */
 	static splitPackageAndClassName( String qualifiedClassName ) {
+		if ( !qualifiedClassName || qualifiedClassName.isEmpty() )
+			throw new RuntimeException( 'No class name given' )
 		def parts = qualifiedClassName.split( /\./ )
 		[ packages: parts.size() > 1 ? parts[ 0..-2 ] : [ ],
 				simpleClassName: parts[ -1 ] ]
