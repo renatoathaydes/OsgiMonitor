@@ -22,8 +22,7 @@ public class FilesHelper {
 				parts[parts.length - 1].equals( extension );
 	}
 
-	public List<Path> findAllFilesWithExtension(
-			final String extension, final Path start )
+	public List<Path> findAllFilesIn( final Path start )
 			throws IOException {
 		final List<Path> result = new ArrayList<>();
 
@@ -34,9 +33,7 @@ public class FilesHelper {
 				new SimpleFileVisitor<Path>() {
 					@Override
 					public FileVisitResult visitFile( Path file, BasicFileAttributes attrs ) throws IOException {
-						if ( hasExtension( file, extension ) ) {
-							result.add( file );
-						}
+						result.add( file );
 						return FileVisitResult.CONTINUE;
 					}
 				} );

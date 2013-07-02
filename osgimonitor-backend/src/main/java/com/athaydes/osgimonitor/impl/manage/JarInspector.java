@@ -1,5 +1,7 @@
 package com.athaydes.osgimonitor.impl.manage;
 
+import com.athaydes.osgimonitor.api.manage.VersionedArtifact;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -46,4 +48,8 @@ public class JarInspector {
 		return result.toArray( new JarFile[result.size()] );
 	}
 
+	public VersionedArtifact jar2artifact( JarFile jarFile ) {
+		//TODO implement
+		return null;
+	}
 }

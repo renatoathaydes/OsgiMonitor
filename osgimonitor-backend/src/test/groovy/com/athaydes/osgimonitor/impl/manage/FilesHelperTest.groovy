@@ -40,15 +40,15 @@ class FilesHelperTest extends Specification {
 		'.no.jar'         | 'jar'     | false
 	}
 
-	def "All files with a certain extension can be found in a directory tree"( ) {
+	def "All files can be found in a directory tree"( ) {
 		given:
 		"A file tree of known contents"
-		def paths = createFileTreeWith( files, 'target', FilesHelperTest.class.simpleName )
+		def paths = createFileTreeWith( files, 'target', this.class.simpleName )
 
 		when:
-		"I ask for all files with an extension"
+		"I ask for all files in the tree"
 		def result = new FilesHelper()
-				.findAllFilesWithExtension( extension, paths.first() )
+				.findAllFilesIn( paths.first() )
 
 		then:
 		"I get all expected files with that extension"
@@ -62,14 +62,16 @@ class FilesHelperTest extends Specification {
 		}
 
 		where:
-		extension | files /* d is dir, f is file */                                                       | expected
-		"jar"     | [ ]                                                                                   | [ ]
-		"jar"     | [ [ d: [ 'a' ] ], [ f: [ 'a.jar' ] ] ]                                                | [ [ 'a.jar' ] ]
-		"jar"     | [ [ d: [ 'a' ] ], [ f: [ 'a', 'a.jar' ] ] ]                                           | [ [ 'a', 'a.jar' ] ]
-		"m"       | [ [ f: [ 'm' ] ] ]                                                                    | [ ]
-		"m"       | [ [ f: [ 'm.m' ] ], [ f: [ 'm' ] ] ]                                                  | [ [ 'm.m' ] ]
-		"m"       | [ [ f: [ 'm.m' ] ], [ d: [ 'n.m' ] ] ]                                                | [ [ 'm.m' ] ]
-		"m"       | [ [ f: [ 'm.m' ] ], [ d: [ 'm' ] ], [ d: [ 'm', 'n' ] ], [ f: [ 'm', 'n', 'o.m' ] ] ] | [ [ 'm.m' ], [ 'm', 'n', 'o.m' ] ]
+		files /* d is dir, f is file */             | expected
+		[ ]                                         | [ ]
+		[ [ d: [ 'a' ] ], [ f: [ 'a.jar' ] ] ]      | [ [ 'a.jar' ] ]
+		[ [ d: [ 'a' ] ], [ f: [ 'a', 'a.jar' ] ] ] | [ [ 'a', 'a.jar' ] ]
+		[ [ f: [ 'm' ] ] ]                          | [ [ 'm' ] ]
+		[ [ f: [ 'm.m' ] ], [ d: [ 'n.m' ] ] ]      | [ [ 'm.m' ] ]
+		[ [ f: [ 'm.m' ] ],
+				[ d: [ 'm' ] ],
+				[ d: [ 'm', 'n' ] ],
+				[ f: [ 'm', 'n', 'o.m' ] ] ]        | [ [ 'm.m' ], [ 'm', 'n', 'o.m' ] ]
 	}
 
 	def "Maven Home can be determined correctly when M2_HOME is defined"( ) {

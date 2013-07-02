@@ -47,7 +47,7 @@ class LocalArtifactLocatorTest extends Specification {
 		artifacts.collect { "${it.artifactId}:${it.groupId}" }.unique().size() == artifacts.size()
 
 		where:
-		className << [ "StringUtils", "HttpResponse" ]
+		className << [ "org.codehaus.groovy.GroovyException", "org.junit.After" ]
 	}
 
 	def "A set of artifacts can be found by entering a groupId"( ) {

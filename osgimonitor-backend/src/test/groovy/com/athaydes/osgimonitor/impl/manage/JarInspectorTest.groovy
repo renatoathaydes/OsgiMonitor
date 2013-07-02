@@ -103,4 +103,8 @@ class JarInspectorTest extends Specification {
 		"some${File.separator}Class2.class" | "some.Class2"
 	}
 
+	def "A VersionedArtifact can be created given just a Jar file"( ) {
+		//TODO implement
+	}
+
 }

@@ -15,7 +15,7 @@ public interface ArtifactLocator {
 	 * @param className name of the class
 	 * @return artifacts
 	 */
-	Set<Artifact> findByClassName( String className );
+	Set<? extends VersionedArtifact> findByClassName( String className );
 
 	/**
 	 * Find all artifacts matching the given groupdId.
@@ -23,7 +23,7 @@ public interface ArtifactLocator {
 	 * @param groupId the group ID
 	 * @return artifacts
 	 */
-	Set<Artifact> findByGroupId( String groupId );
+	Set<? extends Artifact> findByGroupId( String groupId );
 
 	/**
 	 * Find all artifacts matching the given artifactId.
@@ -31,7 +31,7 @@ public interface ArtifactLocator {
 	 * @param artifactId the artifact ID
 	 * @return artifacts
 	 */
-	Set<Artifact> findByArtifactId( String artifactId );
+	Set<? extends Artifact> findByArtifactId( String artifactId );
 
 	/**
 	 * Find a single artifact matching the given parameters

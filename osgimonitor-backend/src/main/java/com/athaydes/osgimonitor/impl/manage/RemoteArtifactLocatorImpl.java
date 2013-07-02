@@ -57,23 +57,23 @@ public class RemoteArtifactLocatorImpl implements RemoteArtifactLocator {
 	}
 
 	@Override
-	public Set<Artifact> findByClassName( String className ) {
+	public Set<? extends VersionedArtifact> findByClassName( String className ) {
 		return findBy( QueryType.CLASS_NAME, className );
 	}
 
 	@Override
-	public Set<Artifact> findByGroupId( String groupId ) {
+	public Set<? extends Artifact> findByGroupId( String groupId ) {
 		return findBy( QueryType.GROUP_ID, groupId );
 	}
 
 	@Override
-	public Set<Artifact> findByArtifactId( String artifactId ) {
+	public Set<? extends Artifact> findByArtifactId( String artifactId ) {
 		return findBy( QueryType.ARTIFACT_ID, artifactId );
 	}
 
-	private Set<Artifact> findBy( QueryType queryType, String value ) {
+	private Set<? extends VersionedArtifact> findBy( QueryType queryType, String value ) {
 		String xmlResponse = query( new QueryPart( queryType, value ) );
-		return new HashSet<Artifact>( toVersionedArtifacts( xmlResponse ) );
+		return new HashSet<>( toVersionedArtifacts( xmlResponse ) );
 	}
 
 	@Override
