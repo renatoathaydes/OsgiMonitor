@@ -11,6 +11,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Pattern;
 
 /**
  * User: Renato
@@ -49,7 +50,16 @@ public class JarInspector {
 	}
 
 	public VersionedArtifact jar2artifact( JarFile jarFile ) {
-		//TODO implement
+		String location = jarFile.getName();
+		System.out.println( "Jar Location: " + location );
+		String[] parts = location.split( Pattern.quote( File.separator ) );
+		if ( parts.length < 3 ) {
+			throw new RuntimeException( "Cannot recognize path as being" +
+					" in a Maven Repo: " + location );
+		}
+		int len = parts.length;
+		//TODO finish implementation
+//		String groupId = parts[len - 4];
 		return null;
 	}
 }

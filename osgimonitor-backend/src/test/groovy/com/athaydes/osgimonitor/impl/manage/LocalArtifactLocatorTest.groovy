@@ -44,7 +44,9 @@ class LocalArtifactLocatorTest extends Specification {
 		"A number of artifacts are found"
 		artifacts != null
 		!artifacts.isEmpty()
-		artifacts.collect { "${it.artifactId}:${it.groupId}" }.unique().size() == artifacts.size()
+		artifacts.collect {
+			"${it.artifactId}:${it.groupId}:${it.version}"
+		}.unique().size() == artifacts.size()
 
 		where:
 		className << [ "org.codehaus.groovy.GroovyException", "org.junit.After" ]

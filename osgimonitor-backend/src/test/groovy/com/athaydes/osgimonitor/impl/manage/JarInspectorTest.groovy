@@ -103,8 +103,35 @@ class JarInspectorTest extends Specification {
 		"some${File.separator}Class2.class" | "some.Class2"
 	}
 
-	def "A VersionedArtifact can be created given just a Jar file"( ) {
-		//TODO implement
+	def "A VersionedArtifact can be created given just a Jar file based on its location"( ) {
+		given:
+		"The default location of a given Jar in a Maven repository"
+		def targetPath = Paths.get( 'target', this.class.simpleName )
+		def props = expectedProperties
+		def jarLocation = targetPath.resolve( list2path(
+				props.g.split( /\./ ) + props.a + props.v ) )
+
+		and:
+		"A Jar File with known contents"
+		def pathToJar = jarLocation.resolve( 'the.jar' )
+				.toAbsolutePath().toString()
+		def jar = createExecutableJar( pathToJar, [ classNames: classes ] )
+
+		when:
+		"A Versioned artifact is created from the Jar"
+		def artifact = new JarInspector().jar2artifact( jar )
+
+		then:
+		"The Versioned artifact has the expected properties"
+		artifact != null
+		artifact.groupId == expectedProperties.g
+		artifact.artifactId == expectedProperties.a
+		artifact.version == expectedProperties.v
+
+		where:
+		classes                         | expectedProperties
+		//TODO [ ]                             | [ : ]
+		[ 'pkg.Class1', 'pkg2.Class2' ] | [ g: 'com.athaydes.osgimonitor', a: 'osgimonitor-backend', v: '0.0.1-SNAPSHOT' ]
 	}
 
 }
