@@ -4,7 +4,6 @@ import com.athaydes.osgimonitor.api.manage.Artifact;
 import com.athaydes.osgimonitor.api.manage.ArtifactLocator;
 import com.athaydes.osgimonitor.api.manage.VersionedArtifact;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,8 +32,7 @@ public class LocalArtifactLocator implements ArtifactLocator {
 	@Override
 	public Set<? extends VersionedArtifact> findByClassName( String className ) {
 		Set<VersionedArtifact> result = new HashSet<>();
-		String mavenHome = filesHelper.getMavenHome();
-		Path repositoryDir = Paths.get( mavenHome, "repository" );
+		Path repositoryDir = Paths.get( filesHelper.getMavenRepoHome() );
 		try {
 			List<Path> files = filesHelper.findAllFilesIn( repositoryDir );
 			for ( JarFile jarFile : jarInspector.filterJars( files ) ) {

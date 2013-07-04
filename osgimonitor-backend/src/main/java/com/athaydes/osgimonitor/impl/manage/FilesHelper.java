@@ -92,7 +92,7 @@ public class FilesHelper {
 	}
 
 	private String getDefaultMavenRepoHome() {
-		return Paths.get( getMavenHome(), ".m2", "repository" ).toString();
+		return Paths.get( getMavenHome(), "repository" ).toString();
 	}
 
 	private static boolean dirExists( String m2Home ) {
