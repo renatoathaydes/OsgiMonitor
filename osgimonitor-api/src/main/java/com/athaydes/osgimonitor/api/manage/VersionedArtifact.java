@@ -16,4 +16,13 @@ public class VersionedArtifact extends Artifact {
 		return version;
 	}
 
+	public static VersionedArtifact from( String groupId,
+	                                      String artifactId,
+	                                      String version ) {
+		return new VersionedArtifact(
+				new Artifact( groupId, artifactId ),
+				version );
+	}
+
+
 }

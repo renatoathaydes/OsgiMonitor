@@ -103,10 +103,42 @@ class JarInspectorTest extends Specification {
 		"some${File.separator}Class2.class" | "some.Class2"
 	}
 
+	def "The groupId of a Maven artifact can be found from the location of a Jar file"( ) {
+		given:
+		"A Jar Inspector and the location of a Jar file relative to the Maven Repo Home"
+		def jarInspector = new JarInspector()
+
+		when:
+		"I ask for the groupId of the artifact"
+		def result = jarInspector.groupIdFrom( locationParts as String[] )
+
+		then:
+		"The groupId of the artifact is determined correctly"
+		result == expectedGroupId
+
+		where:
+		locationParts                                  | expectedGroupId
+		[ 'org', 'example', 'v1.0', 'the.jar' ]        | 'org'
+		[ 'org', 'com', 'example', 'v1.0', 'the.jar' ] | 'org.com'
+		[ 'a', 'b', 'c', 'a', 'v1.0', 'the.jar' ]      | 'a.b.c'
+
+	}
+
 	def "A VersionedArtifact can be created given just a Jar file based on its location"( ) {
 		given:
-		"The default location of a given Jar in a Maven repository"
+		"A JarInspector"
+		def jarInspector = new JarInspector()
+
+		and:
+		"The Maven repository location is known"
 		def targetPath = Paths.get( 'target', this.class.simpleName )
+		jarInspector.filesHelper = new FilesHelper() {
+			@Override
+			String getMavenRepoHome( ) { targetPath.toAbsolutePath().toString() }
+		}
+
+		and:
+		"The default location of a given Jar in a Maven repository is known"
 		def props = expectedProperties
 		def jarLocation = targetPath.resolve( list2path(
 				props.g.split( /\./ ) + props.a + props.v ) )
@@ -119,7 +151,7 @@ class JarInspectorTest extends Specification {
 
 		when:
 		"A Versioned artifact is created from the Jar"
-		def artifact = new JarInspector().jar2artifact( jar )
+		def artifact = jarInspector.jar2artifact( jar )
 
 		then:
 		"The Versioned artifact has the expected properties"
@@ -128,10 +160,14 @@ class JarInspectorTest extends Specification {
 		artifact.artifactId == expectedProperties.a
 		artifact.version == expectedProperties.v
 
+		cleanup:
+		jar?.close()
+		safeDelete targetPath.toFile()
+
 		where:
 		classes                         | expectedProperties
-		//TODO [ ]                             | [ : ]
-		[ 'pkg.Class1', 'pkg2.Class2' ] | [ g: 'com.athaydes.osgimonitor', a: 'osgimonitor-backend', v: '0.0.1-SNAPSHOT' ]
+		[ 'pkg.Class1', 'pkg2.Class2' ] | [ g: 'a.b.c', a: 'd', v: '2.5.0' ]
+		[ 'a.ClassFile' ]               | [ g: 'com.athaydes.osgimonitor', a: 'osgimonitor-backend', v: '0.1-SNAPSHOT' ]
 	}
 
 }
