@@ -147,7 +147,8 @@ class JarInspectorTest extends Specification {
 		"A Jar File with known contents"
 		def pathToJar = jarLocation.resolve( 'the.jar' )
 				.toAbsolutePath().toString()
-		def jar = createExecutableJar( pathToJar, [ classNames: classes ] )
+		def jar = createExecutableJar( pathToJar,
+				[ classNames: [ 'some.ClassInJar' ] ] )
 
 		when:
 		"A Versioned artifact is created from the Jar"
@@ -165,9 +166,10 @@ class JarInspectorTest extends Specification {
 		safeDelete targetPath.toFile()
 
 		where:
-		classes                         | expectedProperties
-		[ 'pkg.Class1', 'pkg2.Class2' ] | [ g: 'a.b.c', a: 'd', v: '2.5.0' ]
-		[ 'a.ClassFile' ]               | [ g: 'com.athaydes.osgimonitor', a: 'osgimonitor-backend', v: '0.1-SNAPSHOT' ]
+		expectedProperties << [
+				[ g: 'group', a: 'd', v: '2.5.0' ],
+				[ g: 'com.athaydes.osgimonitor', a: 'osgimonitor-backend', v: '0.1-SNAPSHOT' ]
+		]
 	}
 
 }
