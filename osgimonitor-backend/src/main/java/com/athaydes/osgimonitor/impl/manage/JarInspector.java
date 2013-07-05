@@ -55,10 +55,8 @@ public class JarInspector {
 
 	public VersionedArtifact jar2artifact( JarFile jarFile ) {
 		String location = jarFile.getName();
-		System.out.println( "Jar Location: " + location );
 		String pathFromMavenRepoHome = pathFromMavenRepoHome( location );
 		String[] locationParts = pathFromMavenRepoHome.split( quote( File.separator ) );
-		System.out.println( "Location parts: " + Arrays.toString( locationParts ) );
 		if ( locationParts.length < 4 ) {
 			throw new RuntimeException( "Cannot recognize path as being" +
 					" in a Maven Repo: " + location );

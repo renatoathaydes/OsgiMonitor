@@ -52,12 +52,10 @@ public class FilesHelper {
 
 	public String getMavenHome() {
 		String m2Home = getMavenHomeEnvVariable();
-		System.out.println( "M2_HOME: " + m2Home );
 		if ( dirExists( m2Home ) ) {
 			return m2Home;
 		} else {
 			String userHome = getUserHome();
-			System.out.println( "User HOME: " + userHome );
 			String mavenHome = userHome + File.separator + ".m2";
 			if ( dirExists( mavenHome ) ) {
 				return mavenHome;
