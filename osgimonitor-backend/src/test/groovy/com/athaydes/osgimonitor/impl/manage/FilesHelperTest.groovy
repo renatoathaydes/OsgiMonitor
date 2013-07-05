@@ -154,7 +154,7 @@ class FilesHelperTest extends Specification {
 		and:
 		"The default Maven Repo home"
 		final String DEFAULT_REPO_HOME = list2path(
-				[ FAKE_MAVEN_HOME, '.m2', 'repository' ] ).toAbsolutePath().toString()
+				[ FAKE_MAVEN_HOME, 'repository' ] ).toAbsolutePath().toString()
 
 		when:
 		"I try to get the Maven Repo home"

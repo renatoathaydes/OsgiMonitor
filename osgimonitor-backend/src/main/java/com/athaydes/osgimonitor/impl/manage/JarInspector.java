@@ -44,7 +44,7 @@ public class JarInspector {
 		for ( Path path : paths ) {
 			if ( path.getFileName().toString().endsWith( ".jar" ) ) {
 				try {
-					result.add( new JarFile( path.toFile(), false ) );
+					result.add( new JarFile( path.toAbsolutePath().toFile(), false ) );
 				} catch ( IOException e ) {
 					e.printStackTrace();
 				}
@@ -73,7 +73,7 @@ public class JarInspector {
 		String[] parts = fullPath.split( quote( mavenRepoHome ) );
 		if ( parts.length != 2 )
 			throw new RuntimeException( "Full path to jar is not" +
-					" under Maven repo home" + fullPath );
+					" under Maven repo home: " + fullPath );
 		return parts[1].substring( 1 );
 	}
 

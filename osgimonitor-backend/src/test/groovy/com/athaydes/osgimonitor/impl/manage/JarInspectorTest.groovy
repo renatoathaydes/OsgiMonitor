@@ -35,6 +35,7 @@ class JarInspectorTest extends Specification {
 		result.collect { Paths.get( it.name ) } as Set ==
 				expected.collect {
 					list2path( [ 'target', this.class.simpleName ] + it )
+							.toAbsolutePath()
 				} as Set
 
 		cleanup:

@@ -23,6 +23,7 @@ public class LocalArtifactLocator implements ArtifactLocator {
 
 	public void setFilesHelper( FilesHelper filesHelper ) {
 		this.filesHelper = filesHelper;
+		jarInspector.setFilesHelper( filesHelper );
 	}
 
 	public void setJarInspector( JarInspector jarInspector ) {
@@ -33,6 +34,8 @@ public class LocalArtifactLocator implements ArtifactLocator {
 	public Set<? extends VersionedArtifact> findByClassName( String className ) {
 		Set<VersionedArtifact> result = new HashSet<>();
 		Path repositoryDir = Paths.get( filesHelper.getMavenRepoHome() );
+		if ( !repositoryDir.toFile().exists() )
+			return result;
 		try {
 			List<Path> files = filesHelper.findAllFilesIn( repositoryDir );
 			for ( JarFile jarFile : jarInspector.filterJars( files ) ) {

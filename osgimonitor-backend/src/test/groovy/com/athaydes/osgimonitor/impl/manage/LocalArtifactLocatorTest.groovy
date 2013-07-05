@@ -3,6 +3,11 @@ package com.athaydes.osgimonitor.impl.manage
 import com.athaydes.osgimonitor.api.manage.ArtifactLocator
 import spock.lang.Specification
 
+import java.nio.file.Paths
+
+import static com.athaydes.osgimonitor.impl.CommonTestFunctions.createExecutableJar
+import static com.athaydes.osgimonitor.impl.CommonTestFunctions.safeDelete
+
 /**
  *
  * User: Renato
@@ -33,23 +38,50 @@ class LocalArtifactLocatorTest extends Specification {
 
 	def "A set of artifacts can be found by entering a class name"( ) {
 		given:
-		"A LocalArtifactLocator"
+		"A LocalArtifactLocator pointing to a fake Maven repo home"
+		final FAKE_MAVEN_REPO_HOME = Paths.get( 'target', LocalArtifactLocatorTest.class.simpleName )
 		ArtifactLocator locator = new LocalArtifactLocator()
+		locator.filesHelper = new FilesHelper() {
+			@Override
+			String getMavenRepoHome( ) { FAKE_MAVEN_REPO_HOME }
+		}
+
+		and:
+		"The fake Maven repo contains a number of jars with known classes"
+		def jars = numberOfJars < 1 ? [ ] : ( 1..numberOfJars ).collect {
+			def jarPath = FAKE_MAVEN_REPO_HOME.resolve(
+					Paths.get( "g$it", "a$it", "v$it", "a${it}.jar" ) )
+			createExecutableJar( jarPath.toAbsolutePath().toString(),
+					[ classNames: [
+							"some.NoiseClass$it",
+							"and.AnotherOne$it" ] + (
+					it in indexesContainingClass ?
+						[ className ] : [ ] ) ]
+			)
+		}
 
 		when:
 		"A search by class name is made"
 		def artifacts = locator.findByClassName( className )
 
 		then:
-		"A number of artifacts are found"
+		"The artifacts which contain the class name are found"
 		artifacts != null
-		!artifacts.isEmpty()
 		artifacts.collect {
-			"${it.artifactId}:${it.groupId}:${it.version}"
-		}.unique().size() == artifacts.size()
+			"${it.groupId}:${it.artifactId}:${it.version}"
+		} as Set == indexesContainingClass.collect {
+			"g$it:a$it:v$it"
+		} as Set
+
+		cleanup:
+		jars?.each { it?.close() }
+		safeDelete FAKE_MAVEN_REPO_HOME
 
 		where:
-		className << [ "org.codehaus.groovy.GroovyException", "org.junit.After" ]
+		className                    | numberOfJars | indexesContainingClass
+		"hello.World"                | 0            | [ ]
+		"org.codehaus.groovy.Groovy" | 1            | [ 1 ]
+		"org.junit.After"            | 3            | [ 2, 3 ]
 	}
 
 	def "A set of artifacts can be found by entering a groupId"( ) {
