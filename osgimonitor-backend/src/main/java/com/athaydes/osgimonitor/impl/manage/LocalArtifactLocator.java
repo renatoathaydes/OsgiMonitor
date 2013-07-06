@@ -17,12 +17,12 @@ import java.util.jar.JarFile;
  */
 public class LocalArtifactLocator implements ArtifactLocator {
 
-	private FilesHelper filesHelper = new FilesHelper();
+	private MavenHelper mavenHelper = new MavenHelper();
 	private JarInspector jarInspector = new JarInspector();
 
-	public void setFilesHelper( FilesHelper filesHelper ) {
-		this.filesHelper = filesHelper;
-		jarInspector.setFilesHelper( filesHelper );
+	public void setMavenHelper( MavenHelper mavenHelper ) {
+		this.mavenHelper = mavenHelper;
+		jarInspector.setMavenHelper( mavenHelper );
 	}
 
 	public void setJarInspector( JarInspector jarInspector ) {
@@ -32,11 +32,11 @@ public class LocalArtifactLocator implements ArtifactLocator {
 	@Override
 	public Set<? extends VersionedArtifact> findByClassName( String className ) {
 		Set<VersionedArtifact> result = new HashSet<>();
-		Path repositoryDir = Paths.get( filesHelper.getMavenRepoHome() );
+		Path repositoryDir = Paths.get( mavenHelper.getMavenRepoHome() );
 		if ( !repositoryDir.toFile().exists() )
 			return result;
 		try {
-			List<Path> files = filesHelper.findAllFilesIn( repositoryDir );
+			List<Path> files = mavenHelper.findAllFilesIn( repositoryDir );
 			for ( JarFile jarFile : jarInspector.filterJars( files ) ) {
 				String[] classNames = jarInspector.findAllClassNamesIn( jarFile );
 				if ( contains( classNames, className ) ) {

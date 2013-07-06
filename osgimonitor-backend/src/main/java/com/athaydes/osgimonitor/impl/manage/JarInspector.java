@@ -16,10 +16,10 @@ import static java.util.regex.Pattern.quote;
  */
 public class JarInspector {
 
-	private FilesHelper filesHelper = new FilesHelper();
+	private MavenHelper mavenHelper = new MavenHelper();
 
-	public void setFilesHelper( FilesHelper filesHelper ) {
-		this.filesHelper = filesHelper;
+	public void setMavenHelper( MavenHelper mavenHelper ) {
+		this.mavenHelper = mavenHelper;
 	}
 
 	public String[] findAllClassNamesIn( JarFile jar ) {
@@ -69,7 +69,7 @@ public class JarInspector {
 	}
 
 	protected String pathFromMavenRepoHome( String fullPath ) {
-		String mavenRepoHome = filesHelper.getMavenRepoHome();
+		String mavenRepoHome = mavenHelper.getMavenRepoHome();
 		String[] parts = fullPath.split( quote( mavenRepoHome ) );
 		if ( parts.length != 2 )
 			throw new RuntimeException( "Full path to jar is not" +

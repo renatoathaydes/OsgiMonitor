@@ -133,7 +133,7 @@ class JarInspectorTest extends Specification {
 		and:
 		"The Maven repository location is known"
 		def targetPath = Paths.get( 'target', this.class.simpleName )
-		jarInspector.filesHelper = new FilesHelper() {
+		jarInspector.mavenHelper = new MavenHelper() {
 			@Override
 			String getMavenRepoHome( ) { targetPath.toAbsolutePath().toString() }
 		}

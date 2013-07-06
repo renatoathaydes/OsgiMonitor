@@ -41,7 +41,7 @@ class LocalArtifactLocatorTest extends Specification {
 		"A LocalArtifactLocator pointing to a fake Maven repo home"
 		final FAKE_MAVEN_REPO_HOME = Paths.get( 'target', LocalArtifactLocatorTest.class.simpleName )
 		ArtifactLocator locator = new LocalArtifactLocator()
-		locator.filesHelper = new FilesHelper() {
+		locator.mavenHelper = new MavenHelper() {
 			@Override
 			String getMavenRepoHome( ) { FAKE_MAVEN_REPO_HOME }
 		}

@@ -15,14 +15,7 @@ import java.util.List;
  */
 public class FilesHelper {
 
-	private static final String SETTINGS_FILE_NAME = "settings.xml";
 	private static final int MAX_DEPTH_TO_VISIT = 6;
-
-	private XmlHelper xmlHelper = new XmlHelper();
-
-	public void setXmlHelper( XmlHelper xmlHelper ) {
-		this.xmlHelper = xmlHelper;
-	}
 
 	public boolean hasExtension( Path path, String extension ) {
 		String[] parts = path.getFileName().toString().split( "\\." );
@@ -50,50 +43,11 @@ public class FilesHelper {
 		return result;
 	}
 
-	public String getMavenHome() {
-		String m2Home = getMavenHomeEnvVariable();
-		if ( dirExists( m2Home ) ) {
-			return m2Home;
-		} else {
-			String userHome = getUserHome();
-			String mavenHome = userHome + File.separator + ".m2";
-			if ( dirExists( mavenHome ) ) {
-				return mavenHome;
-			} else {
-				throw new RuntimeException( "Cannot find the Maven Home" );
-			}
-		}
-	}
-
-	public String getMavenRepoHome() {
-		File settingsFile = Paths.get( getMavenHome(), SETTINGS_FILE_NAME ).toFile();
-		if ( settingsFile.exists() ) {
-			try {
-				Document doc = xmlHelper.parseFile( settingsFile );
-				String repoLocation = xmlHelper.evalXPath( doc, "/settings/localRepository/text()" );
-				if ( repoLocation != null ) {
-					return repoLocation;
-				}
-			} catch ( Exception e ) {
-				e.printStackTrace();
-			}
-		}
-		return getDefaultMavenRepoHome();
-	}
-
-	protected String getMavenHomeEnvVariable() {
-		return System.getenv( "M2_HOME" );
-	}
-
 	protected String getUserHome() {
 		return System.getProperty( "user.home" );
 	}
 
-	private String getDefaultMavenRepoHome() {
-		return Paths.get( getMavenHome(), "repository" ).toString();
-	}
-
-	private static boolean dirExists( String m2Home ) {
+	protected static boolean dirExists( String m2Home ) {
 		return m2Home != null && new File( m2Home ).exists();
 	}
 
