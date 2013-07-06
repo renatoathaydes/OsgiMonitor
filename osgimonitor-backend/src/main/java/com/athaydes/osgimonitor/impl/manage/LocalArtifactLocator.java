@@ -7,7 +7,6 @@ import com.athaydes.osgimonitor.api.manage.VersionedArtifact;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,7 +52,12 @@ public class LocalArtifactLocator implements ArtifactLocator {
 	}
 
 	private boolean contains( String[] classNames, String className ) {
-		return new HashSet<>( Arrays.asList( classNames ) ).contains( className );
+		for ( String c : classNames ) {
+			if ( c != null && c.equals( className ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
