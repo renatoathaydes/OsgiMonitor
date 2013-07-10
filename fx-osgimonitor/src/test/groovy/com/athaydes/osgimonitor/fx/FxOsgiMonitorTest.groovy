@@ -59,10 +59,12 @@ class FxOsgiMonitorTest {
 		assert monitor.scene.lookup( '#main-header' )
 		assert monitor.scene.lookup( '#bundles-tab' )
 		assert monitor.scene.lookup( '#services-tab' )
+		assert monitor.scene.lookup( '#manage-tab' )
 
-		assert mainTabPane.tabs.size() == 2
+		assert mainTabPane.tabs.size() == 3
 		assert mainTabPane.tabs[ 0 ].text == 'Bundles'
 		assert mainTabPane.tabs[ 1 ].text == 'Services'
+		assert mainTabPane.tabs[ 2 ].text == 'Manage'
 
 		def bundlesTable = monitor.scene.lookup( '#bundles-table' ) as TableView
 		assert bundlesTable

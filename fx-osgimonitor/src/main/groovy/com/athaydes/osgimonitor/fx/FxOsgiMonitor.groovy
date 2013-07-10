@@ -5,6 +5,7 @@ import com.athaydes.osgimonitor.api.MonitorRegister
 import com.athaydes.osgimonitor.api.OsgiMonitor
 import com.athaydes.osgimonitor.api.ServiceData
 import com.athaydes.osgimonitor.fx.tab.BundlesTab
+import com.athaydes.osgimonitor.fx.tab.ManageTab
 import com.athaydes.osgimonitor.fx.tab.ServicesTab
 import com.athaydes.osgimonitor.fx.views.MainHeader
 import javafx.application.Application
@@ -47,6 +48,11 @@ class Launcher {
 			Application.launch OsgiMonitorApp
 		}
 	}
+
+	static void main( args ) {
+		launchApplication()
+	}
+
 }
 
 class OsgiMonitorApp extends Application implements OsgiMonitor {
@@ -56,6 +62,7 @@ class OsgiMonitorApp extends Application implements OsgiMonitor {
 
 	final bundlesTab = new BundlesTab()
 	final servicesTab = new ServicesTab()
+	final manageTab = new ManageTab()
 	def Scene scene
 
 	synchronized static OsgiMonitorApp getInstance( ) {
@@ -74,7 +81,9 @@ class OsgiMonitorApp extends Application implements OsgiMonitor {
 		] as EventHandler
 
 		def tabPane = new TabPane( id: 'main-tab-pane' )
-		tabPane.tabs.addAll bundlesTab as Tab, servicesTab as Tab
+		tabPane.tabs.addAll bundlesTab as Tab,
+				servicesTab as Tab,
+				manageTab as Tab
 
 		VBox root = new VBox( id: 'osgimonitor-root' )
 		root.spacing = 20
@@ -83,6 +92,7 @@ class OsgiMonitorApp extends Application implements OsgiMonitor {
 		scene.fill = Color.DARKGRAY
 		stage.scene = scene
 		stage.show()
+		stage.toFront()
 		appFuture.add this
 
 	}
