@@ -1,7 +1,7 @@
 package com.athaydes.osgimonitor.impl.manage;
 
 import com.athaydes.osgimonitor.api.manage.Artifact;
-import com.athaydes.osgimonitor.api.manage.RemoteArtifactLocator;
+import com.athaydes.osgimonitor.api.manage.ArtifactLocator;
 import com.athaydes.osgimonitor.api.manage.VersionedArtifact;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -24,7 +24,7 @@ import java.util.Set;
 /**
  * User: Renato
  */
-public class RemoteArtifactLocatorImpl implements RemoteArtifactLocator {
+public class RemoteArtifactLocator implements ArtifactLocator {
 
 	private static final String MAVEN_URL = "http://search.maven.org/solrsearch/select?q=";
 	private static final DocumentBuilderFactory DOC_BUILDER_FACTORY =
@@ -32,7 +32,7 @@ public class RemoteArtifactLocatorImpl implements RemoteArtifactLocator {
 	private static final XPath X_PATH = XPathFactory.newInstance().newXPath();
 
 	private enum QueryType {
-		GENERAL( "" ), CLASS_NAME( "c" ), GROUP_ID( "g" ), ARTIFACT_ID( "a" );
+		CLASS_NAME( "c" ), GROUP_ID( "g" ), ARTIFACT_ID( "a" );
 
 		final String key;
 
@@ -49,11 +49,6 @@ public class RemoteArtifactLocatorImpl implements RemoteArtifactLocator {
 			this.type = type;
 			this.queryStr = queryStr;
 		}
-	}
-
-	@Override
-	public boolean installInLocal( VersionedArtifact artifact ) {
-		return false;
 	}
 
 	@Override

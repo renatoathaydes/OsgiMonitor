@@ -1,6 +1,5 @@
 package com.athaydes.osgimonitor.impl.manage
 
-import com.athaydes.osgimonitor.api.manage.RemoteArtifactLocator
 import com.athaydes.osgimonitor.api.manage.VersionedArtifact
 import spock.lang.Specification
 
@@ -8,7 +7,7 @@ import spock.lang.Specification
  *
  * User: Renato
  */
-class RemoteArtifactLocatorImplTest extends Specification {
+class RemoteArtifactLocatorTest extends Specification {
 
 	private static final String SAMPLE_MAVEN_RESPONSE = '''<?xml version="1.0" encoding="UTF-8"?>
 		<response>
@@ -66,7 +65,7 @@ class RemoteArtifactLocatorImplTest extends Specification {
 
 		when:
 		"The response is parsed"
-		List<VersionedArtifact> artifacts = new RemoteArtifactLocatorImpl()
+		List<VersionedArtifact> artifacts = new RemoteArtifactLocator()
 				.parseMavenXmlResponse( sampleXml );
 
 		then:
@@ -80,8 +79,8 @@ class RemoteArtifactLocatorImplTest extends Specification {
 
 	def "A single dependency can be fetched by entering a groupId and artifactId"( ) {
 		given:
-		"A RemoteArtifactLocatorImpl"
-		RemoteArtifactLocator locator = new RemoteArtifactLocatorImpl()
+		"A RemoteArtifactLocator"
+		def locator = new RemoteArtifactLocator()
 
 		when:
 		"An exact match is requested for a groupId and artifactId"
@@ -102,8 +101,8 @@ class RemoteArtifactLocatorImplTest extends Specification {
 
 	def "A set of artifacts can be found by entering a class name"( ) {
 		given:
-		"A RemoteArtifactLocatorImpl"
-		RemoteArtifactLocator locator = new RemoteArtifactLocatorImpl()
+		"A RemoteArtifactLocator"
+		def locator = new RemoteArtifactLocator()
 
 		when:
 		"A search by class name is made"
@@ -121,8 +120,8 @@ class RemoteArtifactLocatorImplTest extends Specification {
 
 	def "A set of artifacts can be found by entering a groupId"( ) {
 		given:
-		"A RemoteArtifactLocatorImpl"
-		RemoteArtifactLocator locator = new RemoteArtifactLocatorImpl()
+		"A RemoteArtifactLocator"
+		def locator = new RemoteArtifactLocator()
 
 		when:
 		"A search by groupId is made"
@@ -141,8 +140,8 @@ class RemoteArtifactLocatorImplTest extends Specification {
 
 	def "A set of artifacts can be found by entering an artifactId"( ) {
 		given:
-		"A RemoteArtifactLocatorImpl"
-		RemoteArtifactLocator locator = new RemoteArtifactLocatorImpl()
+		"A RemoteArtifactLocator"
+		def locator = new RemoteArtifactLocator()
 
 		when:
 		"A search by artifactId is made"
