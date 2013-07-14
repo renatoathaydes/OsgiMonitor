@@ -1,7 +1,5 @@
 package com.athaydes.osgimonitor.impl.manage;
 
-import org.w3c.dom.Document;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;

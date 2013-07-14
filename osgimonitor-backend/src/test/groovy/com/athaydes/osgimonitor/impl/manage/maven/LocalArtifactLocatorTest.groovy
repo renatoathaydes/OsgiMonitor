@@ -1,4 +1,4 @@
-package com.athaydes.osgimonitor.impl.manage
+package com.athaydes.osgimonitor.impl.manage.maven
 
 import com.athaydes.osgimonitor.api.manage.ArtifactLocator
 import spock.lang.Specification

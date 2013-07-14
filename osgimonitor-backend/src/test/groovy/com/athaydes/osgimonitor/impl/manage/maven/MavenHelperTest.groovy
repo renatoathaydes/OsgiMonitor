@@ -1,5 +1,6 @@
-package com.athaydes.osgimonitor.impl.manage
+package com.athaydes.osgimonitor.impl.manage.maven
 
+import com.athaydes.osgimonitor.impl.manage.maven.MavenHelper
 import spock.lang.Specification
 
 import java.nio.file.Paths

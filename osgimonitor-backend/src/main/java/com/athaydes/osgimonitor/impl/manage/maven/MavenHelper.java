@@ -1,5 +1,7 @@
-package com.athaydes.osgimonitor.impl.manage;
+package com.athaydes.osgimonitor.impl.manage.maven;
 
+import com.athaydes.osgimonitor.impl.manage.FilesHelper;
+import com.athaydes.osgimonitor.impl.manage.XmlHelper;
 import org.w3c.dom.Document;
 
 import java.io.File;

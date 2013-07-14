@@ -1,4 +1,4 @@
-package com.athaydes.osgimonitor.impl.manage
+package com.athaydes.osgimonitor.impl.manage.maven
 
 import spock.lang.Specification
 

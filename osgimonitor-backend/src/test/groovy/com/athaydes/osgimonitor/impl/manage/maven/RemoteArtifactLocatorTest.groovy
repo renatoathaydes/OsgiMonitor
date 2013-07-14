@@ -1,6 +1,7 @@
-package com.athaydes.osgimonitor.impl.manage
+package com.athaydes.osgimonitor.impl.manage.maven
 
 import com.athaydes.osgimonitor.api.manage.VersionedArtifact
+import com.athaydes.osgimonitor.impl.manage.maven.RemoteArtifactLocator
 import spock.lang.Specification
 
 /**
