@@ -4,6 +4,8 @@ import com.athaydes.osgimonitor.api.manage.Artifact
 import com.athaydes.osgimonitor.api.manage.VersionedArtifact
 import spock.lang.Specification
 
+import static com.athaydes.osgimonitor.impl.CommonTestFunctions.looksLikeArtifactVersion
+
 /**
  *
  * User: Renato
@@ -174,7 +176,7 @@ class RemoteArtifactLocatorTest extends Specification {
 		result != null
 		result.size() > 2
 		result.each { version ->
-			version.split( /\./ ).grep { it[ 0 ].isInteger() }.size() > 1
+			assert looksLikeArtifactVersion( version )
 		}
 
 		where:

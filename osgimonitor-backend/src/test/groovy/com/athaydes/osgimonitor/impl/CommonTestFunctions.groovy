@@ -160,4 +160,15 @@ class CommonTestFunctions {
 		ant.delete( file: file, dir: file )
 	}
 
+	/**
+	 * @param text candidate version
+	 * @return true iff the given text looks like an artifact version
+	 */
+	static boolean looksLikeArtifactVersion( String text ) {
+		if ( text == null || text.isEmpty() )
+			false
+		else
+			text.split( /\./ ).grep { it[ 0 ].isInteger() }.size() > 1
+	}
+
 }
