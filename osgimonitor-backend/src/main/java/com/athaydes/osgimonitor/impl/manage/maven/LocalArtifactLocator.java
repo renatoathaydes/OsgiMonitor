@@ -77,6 +77,7 @@ public class LocalArtifactLocator implements ArtifactLocator {
 
 	@Override
 	public Set<String> getVersionsOf( Artifact artifact ) {
+		//TODO implement
 		return null;  //To change body of implemented methods use File | Settings | File Templates.
 	}
 }

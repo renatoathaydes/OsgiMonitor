@@ -1,7 +1,7 @@
 package com.athaydes.osgimonitor.impl.manage.maven
 
+import com.athaydes.osgimonitor.api.manage.Artifact
 import com.athaydes.osgimonitor.api.manage.VersionedArtifact
-import com.athaydes.osgimonitor.impl.manage.maven.RemoteArtifactLocator
 import spock.lang.Specification
 
 /**
@@ -158,5 +158,26 @@ class RemoteArtifactLocatorTest extends Specification {
 
 		where:
 		artifactId << [ "guice", "junit" ]
+	}
+
+	def "The versions of an existing artifact can be determined"( ) {
+		given:
+		"A RemoteArtifactLocator"
+		def locator = new RemoteArtifactLocator()
+
+		when:
+		"I request all versions of an artifact"
+		def result = locator.getVersionsOf( artifact )
+
+		then:
+		"I get all versions of that artifact"
+		result != null
+		result.size() > 2
+		result.each { version ->
+			version.split( /\./ ).grep { it[ 0 ].isInteger() }.size() > 1
+		}
+
+		where:
+		artifact << [ new Artifact( 'junit', 'junit' ) ]
 	}
 }

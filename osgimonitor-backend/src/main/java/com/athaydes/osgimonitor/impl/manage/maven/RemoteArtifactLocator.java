@@ -16,10 +16,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * User: Renato
@@ -67,13 +64,14 @@ public class RemoteArtifactLocator implements ArtifactLocator {
 	}
 
 	private Set<? extends VersionedArtifact> findBy( QueryType queryType, String value ) {
-		String xmlResponse = query( new QueryPart( queryType, value ) );
+		String xmlResponse = query( false, new QueryPart( queryType, value ) );
 		return new HashSet<>( toVersionedArtifacts( xmlResponse ) );
 	}
 
 	@Override
 	public Artifact findArtifact( String groupId, String artifactId ) {
-		String xmlResponse = query( new QueryPart( QueryType.GROUP_ID, groupId ),
+		String xmlResponse = query( false,
+				new QueryPart( QueryType.GROUP_ID, groupId ),
 				new QueryPart( QueryType.ARTIFACT_ID, artifactId ) );
 		List<VersionedArtifact> artifacts = toVersionedArtifacts( xmlResponse );
 		switch ( artifacts.size() ) {
@@ -98,10 +96,7 @@ public class RemoteArtifactLocator implements ArtifactLocator {
 	}
 
 	List<VersionedArtifact> parseMavenXmlResponse( String xmlResponse ) throws Exception {
-		Document doc = DOC_BUILDER_FACTORY.newDocumentBuilder().parse( new ByteArrayInputStream( xmlResponse.getBytes( "UTF-8" ) ) );
-
-		XPathExpression expr = X_PATH.compile( "//doc" );
-		NodeList nodes = ( NodeList ) expr.evaluate( doc, XPathConstants.NODESET );
+		NodeList nodes = getNodeList( xmlResponse, "//doc" );
 
 		List<VersionedArtifact> artifacts = new ArrayList<>( nodes.getLength() );
 		for ( int i = 0; i < nodes.getLength(); i++ ) {
@@ -109,6 +104,14 @@ public class RemoteArtifactLocator implements ArtifactLocator {
 		}
 
 		return artifacts;
+	}
+
+	private NodeList getNodeList( String xmlResponse, String xPath ) throws Exception {
+		Document doc = DOC_BUILDER_FACTORY.newDocumentBuilder().parse(
+				new ByteArrayInputStream( xmlResponse.getBytes( "UTF-8" ) ) );
+
+		XPathExpression expr = X_PATH.compile( xPath );
+		return ( NodeList ) expr.evaluate( doc, XPathConstants.NODESET );
 	}
 
 	private VersionedArtifact toVersionedArtifact( Node node ) {
@@ -123,13 +126,36 @@ public class RemoteArtifactLocator implements ArtifactLocator {
 		}
 	}
 
-	@Override
-	public Set<String> getVersionsOf( Artifact artifact ) {
-		return null;
+	private Set<String> toVersions( String xmlResponse ) {
+		Set<String> versions = new LinkedHashSet<>();
+		try {
+			NodeList nodes = getNodeList( xmlResponse, "//doc" );
+
+			for ( int i = 0; i < nodes.getLength(); i++ ) {
+				versions.add( toVersion( nodes.item( i ) ) );
+			}
+
+			return versions;
+		} catch ( Exception e ) {
+			throw new RuntimeException( e );
+		}
 	}
 
-	private String query( QueryPart... queryParts ) {
-		return readAsString( MAVEN_URL + groupQueryParts( queryParts ) + "&rows=5&wt=xml" );
+	private String toVersion( Node node ) throws XPathExpressionException {
+		return X_PATH.evaluate( "str[@name='v']", node );
+	}
+
+	@Override
+	public Set<String> getVersionsOf( Artifact artifact ) {
+		String xmlResponse = query( true,
+				new QueryPart( QueryType.GROUP_ID, artifact.getGroupId() ),
+				new QueryPart( QueryType.ARTIFACT_ID, artifact.getArtifactId() ) );
+		return toVersions( xmlResponse );
+	}
+
+	private String query( boolean includeAllVersions, QueryPart... queryParts ) {
+		String suffix = ( includeAllVersions ? "&core=gav" : "" ) + "&rows=5&wt=xml";
+		return readAsString( MAVEN_URL + groupQueryParts( queryParts ) + suffix );
 	}
 
 	private String groupQueryParts( QueryPart... queryParts ) {
