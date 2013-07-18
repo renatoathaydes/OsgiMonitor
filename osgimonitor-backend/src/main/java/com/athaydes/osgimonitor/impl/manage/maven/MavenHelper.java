@@ -54,7 +54,23 @@ public class MavenHelper extends FilesHelper {
 		return getDefaultMavenRepoHome();
 	}
 
-	public String pathFromMavenRepoHome( String fullPath ) {
+	public String[] locationParts( String fullPathToJar ) {
+		String[] locationParts =
+				pathFromMavenRepoHome( fullPathToJar )
+						.split( quote( File.separator ) );
+		verifyLocationParts( locationParts, "Cannot recognize path as being" +
+				" in a Maven Repo: " + fullPathToJar );
+		return locationParts;
+	}
+
+	private void verifyLocationParts( String[] locationParts, String... errorMessage ) {
+		if ( locationParts.length < 4 ) {
+			throw new RuntimeException( errorMessage.length == 0 ?
+					"Maven location must contain at least 4 parts" : errorMessage[0] );
+		}
+	}
+
+	private String pathFromMavenRepoHome( String fullPath ) {
 		String mavenRepoHome = getMavenRepoHome();
 		String[] parts = fullPath.split( quote( mavenRepoHome ) );
 		if ( parts.length != 2 )
@@ -64,6 +80,7 @@ public class MavenHelper extends FilesHelper {
 	}
 
 	public String groupIdFrom( String[] locationParts ) {
+		verifyLocationParts( locationParts );
 		String[] parts = Arrays.copyOfRange( locationParts,
 				0, locationParts.length - 3 );
 		String result = parts[0];
@@ -71,6 +88,16 @@ public class MavenHelper extends FilesHelper {
 			result += "." + parts[i];
 		}
 		return result;
+	}
+
+	public String artifactIdFrom( String[] locationParts ) {
+		verifyLocationParts( locationParts );
+		return locationParts[locationParts.length - 3];
+	}
+
+	public String versionFrom( String[] locationParts ) {
+		verifyLocationParts( locationParts );
+		return locationParts[locationParts.length - 2];
 	}
 
 	protected String getMavenHomeEnvVariable() {
