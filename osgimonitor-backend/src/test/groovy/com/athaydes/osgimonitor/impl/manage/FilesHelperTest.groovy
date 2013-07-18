@@ -76,4 +76,44 @@ class FilesHelperTest extends Specification {
 				[ 'm.m' ], [ 'm', 'n', 'o.m' ], [ 'm', 'n', 'o.n' ] ]
 	}
 
+	def "All folders matching a regex can be found in a directory tree"( ) {
+		given:
+		"A file tree of known contents"
+		def paths = createFileTreeWith( files, 'target', this.class.simpleName )
+
+		when:
+		"I ask for all folders in the tree matching a certain regex"
+		def result = new FilesHelper()
+				.findFoldersIn( paths.first(), regex )
+
+		then:
+		"I get all expected folders with that extension"
+		result as Set == expected.collect {
+			list2path( [ 'target', this.class.simpleName ] + it )
+		} as Set
+
+		cleanup:
+		paths?.reverse()?.each {
+			safeDelete it.toFile()
+		}
+
+		where:
+		files /* d is dir, f is file */         | regex    | expected
+		[ ]                                     | ".*"     | [ ]
+		[ [ f: 'file.txt' ] ]                   | ".*"     | [ ]
+		[ [ d: 'dir' ] ]                        | ".*"     | [ 'dir' ]
+		[ [ d: 'dir' ], [ f: 'file.txt' ] ]     | ".*"     | [ 'dir' ]
+		[ [ d: 'dir' ] ]                        | ""       | [ ]
+		[ [ d: 'dir' ], [ d: 'no' ] ]           | ".*dir"  | [ 'dir' ]
+		[ [ d: 'dir' ], [ d: 'no' ] ]           | ".*aaa"  | [ ]
+		[ [ d: 'a' ], [ d: 'z' ],
+				[ d: [ 'a', 'b' ] ],
+				[ f: [ 'a', 'b.bbb' ] ],
+				[ d: [ 'a', 'b', 'c' ] ],
+				[ f: [ 'a', 'b', 'c', 'd.d' ] ],
+				[ d: [ 'a', 'b', 'c', 'd' ] ] ] | ".*[bd]" | [
+
+				[ 'a', 'b' ], [ 'a', 'b', 'c', 'd' ] ]
+	}
+
 }

@@ -7,6 +7,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * User: Renato
@@ -32,13 +33,37 @@ public class FilesHelper {
 				MAX_DEPTH_TO_VISIT,
 				new SimpleFileVisitor<Path>() {
 					@Override
-					public FileVisitResult visitFile( Path file, BasicFileAttributes attrs ) throws IOException {
+					public FileVisitResult visitFile( Path file, BasicFileAttributes attrs )
+							throws IOException {
 						if ( attrs.isRegularFile() && hasOneOfExtensions( file, extensions ) )
 							result.add( file );
 						return FileVisitResult.CONTINUE;
 					}
 				} );
 
+		return result;
+	}
+
+	public List<Path> findFoldersIn( final Path start, String filterRegex )
+			throws IOException {
+		final List<Path> result = new ArrayList<>();
+		final Pattern filterPattern = Pattern.compile( filterRegex );
+
+		Files.walkFileTree(
+				start,
+				EnumSet.noneOf( FileVisitOption.class ),
+				MAX_DEPTH_TO_VISIT,
+				new SimpleFileVisitor<Path>() {
+					@Override
+					public FileVisitResult preVisitDirectory( Path dir, BasicFileAttributes attrs )
+							throws IOException {
+						if ( filterPattern.matcher( dir.toString() ).matches() )
+							result.add( dir );
+						return FileVisitResult.CONTINUE;
+					}
+				} );
+
+		result.remove( start );
 		return result;
 	}
 
