@@ -57,27 +57,6 @@ class JarInspectorTest extends Specification {
 		"some${File.separator}Class2.class" | "some.Class2"
 	}
 
-	def "The groupId of a Maven artifact can be found from the location of a Jar file"( ) {
-		given:
-		"A Jar Inspector and the location of a Jar file relative to the Maven Repo Home"
-		def jarInspector = new JarInspector()
-
-		when:
-		"I ask for the groupId of the artifact"
-		def result = jarInspector.groupIdFrom( locationParts as String[] )
-
-		then:
-		"The groupId of the artifact is determined correctly"
-		result == expectedGroupId
-
-		where:
-		locationParts                                  | expectedGroupId
-		[ 'org', 'example', 'v1.0', 'the.jar' ]        | 'org'
-		[ 'org', 'com', 'example', 'v1.0', 'the.jar' ] | 'org.com'
-		[ 'a', 'b', 'c', 'a', 'v1.0', 'the.jar' ]      | 'a.b.c'
-
-	}
-
 	def "A VersionedArtifact can be created given just a Jar file based on its location"( ) {
 		given:
 		"A JarInspector"

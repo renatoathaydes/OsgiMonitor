@@ -1,6 +1,5 @@
 package com.athaydes.osgimonitor.impl.manage.maven
 
-import com.athaydes.osgimonitor.impl.manage.maven.MavenHelper
 import spock.lang.Specification
 
 import java.nio.file.Paths
@@ -140,5 +139,27 @@ class MavenHelperTest extends Specification {
 		cleanup:
 		safeDelete FAKE_MAVEN_HOME
 	}
+
+	def "The groupId of a Maven artifact can be found from the location of a Jar file"( ) {
+		given:
+		"A MavenHelper and the location of a Jar file relative to the Maven Repo Home"
+		def mavenHelper = new MavenHelper()
+
+		when:
+		"I ask for the groupId of the artifact"
+		def result = mavenHelper.groupIdFrom( locationParts as String[] )
+
+		then:
+		"The groupId of the artifact is determined correctly"
+		result == expectedGroupId
+
+		where:
+		locationParts                                  | expectedGroupId
+		[ 'org', 'example', 'v1.0', 'the.jar' ]        | 'org'
+		[ 'org', 'com', 'example', 'v1.0', 'the.jar' ] | 'org.com'
+		[ 'a', 'b', 'c', 'a', 'v1.0', 'the.jar' ]      | 'a.b.c'
+
+	}
+
 
 }
