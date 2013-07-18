@@ -22,7 +22,7 @@ public class FilesHelper {
 				parts[parts.length - 1].equals( extension );
 	}
 
-	public List<Path> findAllFilesIn( final Path start )
+	public List<Path> findAllFilesIn( final Path start, final String... extensions )
 			throws IOException {
 		final List<Path> result = new ArrayList<>();
 
@@ -33,12 +33,21 @@ public class FilesHelper {
 				new SimpleFileVisitor<Path>() {
 					@Override
 					public FileVisitResult visitFile( Path file, BasicFileAttributes attrs ) throws IOException {
-						result.add( file );
+						if ( attrs.isRegularFile() && hasOneOfExtensions( file, extensions ) )
+							result.add( file );
 						return FileVisitResult.CONTINUE;
 					}
 				} );
 
 		return result;
+	}
+
+	private boolean hasOneOfExtensions( Path file, String[] extensions ) {
+		if ( extensions.length == 0 ) return true;
+		for ( String ext : extensions ) {
+			if ( hasExtension( file, ext ) ) return true;
+		}
+		return false;
 	}
 
 	protected String getUserHome() {

@@ -36,13 +36,18 @@ public class LocalArtifactLocator implements ArtifactLocator {
 		if ( !repositoryDir.toFile().exists() )
 			return result;
 		try {
-			List<Path> files = mavenHelper.findAllFilesIn( repositoryDir );
-			for ( JarFile jarFile : jarInspector.filterJars( files ) ) {
-				String[] classNames = jarInspector.findAllClassNamesIn( jarFile );
-				if ( contains( classNames, className ) ) {
-					System.out.println( "Found class " + className + " in jar: " + jarFile.getName() );
-					result.add( jarInspector.jar2artifact( jarFile ) );
+			List<Path> files = mavenHelper.findAllFilesIn( repositoryDir, "jar" );
+			for ( Path path : files ) {
+				try ( JarFile jar = new JarFile( path.toFile(), false ) ) {
+					String[] classNames = jarInspector.findAllClassNamesIn( jar );
+					if ( contains( classNames, className ) ) {
+						System.out.println( "Found class " + className + " in jar: " + jar.getName() );
+						result.add( jarInspector.jar2artifact( jar ) );
+					}
+				} catch ( Exception e ) {
+					e.printStackTrace();
 				}
+
 			}
 		} catch ( IOException e ) {
 			e.printStackTrace();
@@ -72,7 +77,12 @@ public class LocalArtifactLocator implements ArtifactLocator {
 
 	@Override
 	public Artifact findArtifact( String groupId, String artifactId ) {
-		return null;  //To change body of implemented methods use File | Settings | File Templates.
+		Path repositoryDir = Paths.get( mavenHelper.getMavenRepoHome() );
+		if ( !repositoryDir.toFile().exists() )
+			return null;
+
+
+		return null;
 	}
 
 	@Override

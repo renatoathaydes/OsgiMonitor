@@ -17,7 +17,7 @@ class LocalArtifactLocatorTest extends Specification {
 	def "A single dependency can be fetched by entering a groupId and artifactId"( ) {
 		given:
 		"A LocalArtifactLocator"
-		ArtifactLocator locator = new LocalArtifactLocator()
+		def locator = new LocalArtifactLocator()
 
 		when:
 		"An exact match is requested for a groupId and artifactId"

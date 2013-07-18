@@ -38,7 +38,7 @@ class FilesHelperTest extends Specification {
 		'.no.jar'         | 'jar'     | false
 	}
 
-	def "All files can be found in a directory tree"( ) {
+	def "All files with certain extensions can be found in a directory tree"( ) {
 		given:
 		"A file tree of known contents"
 		def paths = createFileTreeWith( files, 'target', this.class.simpleName )
@@ -46,7 +46,7 @@ class FilesHelperTest extends Specification {
 		when:
 		"I ask for all files in the tree"
 		def result = new FilesHelper()
-				.findAllFilesIn( paths.first() )
+				.findAllFilesIn( paths.first(), extensions as String[] )
 
 		then:
 		"I get all expected files with that extension"
@@ -60,16 +60,20 @@ class FilesHelperTest extends Specification {
 		}
 
 		where:
-		files /* d is dir, f is file */             | expected
-		[ ]                                         | [ ]
-		[ [ d: [ 'a' ] ], [ f: [ 'a.jar' ] ] ]      | [ [ 'a.jar' ] ]
-		[ [ d: [ 'a' ] ], [ f: [ 'a', 'a.jar' ] ] ] | [ [ 'a', 'a.jar' ] ]
-		[ [ f: [ 'm' ] ] ]                          | [ [ 'm' ] ]
-		[ [ f: [ 'm.m' ] ], [ d: [ 'n.m' ] ] ]      | [ [ 'm.m' ] ]
+		files /* d is dir, f is file */             | extensions   | expected
+		[ ]                                         | [ ]          | [ ]
+		[ [ d: [ 'a' ] ], [ f: [ 'a.jar' ] ] ]      | [ 'jar' ]    | [ [ 'a.jar' ] ]
+		[ [ d: [ 'a' ] ], [ f: [ 'a', 'a.jar' ] ] ] | [ ]          | [ [ 'a', 'a.jar' ] ]
+		[ [ f: [ 'm' ] ] ]                          | [ ]          | [ [ 'm' ] ]
+		[ [ f: [ 'm' ] ] ]                          | [ '' ]       | [ ]
+		[ [ f: [ 'm.m' ] ], [ d: [ 'n.m' ] ] ]      | [ 'm' ]      | [ [ 'm.m' ] ]
 		[ [ f: [ 'm.m' ] ],
 				[ d: [ 'm' ] ],
 				[ d: [ 'm', 'n' ] ],
-				[ f: [ 'm', 'n', 'o.m' ] ] ]        | [ [ 'm.m' ], [ 'm', 'n', 'o.m' ] ]
+				[ f: [ 'm', 'n', 'o.m' ] ],
+				[ f: [ 'm', 'n', 'o.n' ] ] ]        | [ 'm', 'n' ] | [
+
+				[ 'm.m' ], [ 'm', 'n', 'o.m' ], [ 'm', 'n', 'o.n' ] ]
 	}
 
 }
