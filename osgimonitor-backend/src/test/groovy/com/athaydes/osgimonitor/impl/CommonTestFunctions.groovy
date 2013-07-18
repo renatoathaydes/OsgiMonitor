@@ -168,7 +168,7 @@ class CommonTestFunctions {
 		if ( text == null || text.isEmpty() )
 			false
 		else
-			text.split( /\./ ).grep { it[ 0 ].isInteger() }.size() > 1
+			text.split( /\./ ).grep { String part -> part[ 0 ].isInteger() }.size() > 1
 	}
 
 }
