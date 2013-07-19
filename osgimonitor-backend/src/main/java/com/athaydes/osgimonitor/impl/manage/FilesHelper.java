@@ -67,6 +67,18 @@ public class FilesHelper {
 		return result;
 	}
 
+	public List<String> listFoldersUnder( Path path ) {
+		List<String> result = new ArrayList<>();
+		File[] files = path.toFile().listFiles();
+		if ( files != null ) {
+			for ( File file : files ) {
+				if ( file.isDirectory() )
+					result.add( file.getName() );
+			}
+		}
+		return result;
+	}
+
 	private boolean hasOneOfExtensions( Path file, String[] extensions ) {
 		if ( extensions.length == 0 ) return true;
 		for ( String ext : extensions ) {

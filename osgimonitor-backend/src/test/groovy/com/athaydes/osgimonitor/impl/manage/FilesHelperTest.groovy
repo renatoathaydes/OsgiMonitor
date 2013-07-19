@@ -2,6 +2,8 @@ package com.athaydes.osgimonitor.impl.manage
 
 import spock.lang.Specification
 
+import java.nio.file.Paths
+
 import static com.athaydes.osgimonitor.impl.CommonTestFunctions.*
 
 /**
@@ -114,6 +116,36 @@ class FilesHelperTest extends Specification {
 				[ d: [ 'a', 'b', 'c', 'd' ] ] ] | ".*[bd]" | [
 
 				[ 'a', 'b' ], [ 'a', 'b', 'c', 'd' ] ]
+	}
+
+	def "The folders under a certain folder can be listed"( ) {
+		given:
+		"A folder with known contents"
+		def folder = Paths.get( 'target', this.class.simpleName, root )
+		createFileTreeWith( files, 'target', this.class.simpleName )
+
+		when:
+		"I ask to list the folders under the given folder"
+		def result = new FilesHelper().listFoldersUnder( folder )
+
+		then:
+		"I get only the folders under the given folder"
+		result == expected
+
+		cleanup:
+		safeDelete folder
+
+		where:
+		root | files                      | expected
+		''   | [ ]                        | [ ]
+		''   | [ [ d: 'a' ] ]             | [ 'a' ]
+		''   | [ [ f: 'a' ] ]             | [ ]
+		''   | [ [ d: 'a' ], [ f: 'b' ] ] | [ 'a' ]
+		'a'  | [ [ f: 'a' ], [ d: 'b' ] ] | [ ]
+		''   | [ [ d: 'a' ], [ d: 'b' ] ] | [ 'a', 'b' ]
+		''   | [ [ d: 'a' ],
+				[ d: 'b' ],
+				[ d: [ 'a', 'c' ] ] ]     | [ 'a', 'b' ]
 	}
 
 }

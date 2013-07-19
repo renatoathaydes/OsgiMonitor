@@ -66,8 +66,12 @@ public class LocalArtifactLocator implements ArtifactLocator {
 
 	@Override
 	public Set<Artifact> findByGroupId( String groupId ) {
-
-		return null;
+		List<String> artifactIds = mavenHelper.findArtifactIdsUnder( groupId );
+		Set<Artifact> result = new HashSet<>( artifactIds.size() );
+		for ( String artifactId : artifactIds ) {
+			result.add( new Artifact( groupId, artifactId ) );
+		}
+		return result;
 	}
 
 	@Override

@@ -4,8 +4,7 @@ import spock.lang.Specification
 
 import java.nio.file.Paths
 
-import static com.athaydes.osgimonitor.impl.CommonTestFunctions.list2path
-import static com.athaydes.osgimonitor.impl.CommonTestFunctions.safeDelete
+import static com.athaydes.osgimonitor.impl.CommonTestFunctions.*
 
 /**
  *
@@ -208,6 +207,44 @@ class MavenHelperTest extends Specification {
 		'org'   | null
 		''      | ''
 		null    | null
+	}
+
+	def "All artifactIds under a certain groupId can be found"( ) {
+		given:
+		"A MavenHelper and an artifact's groupId"
+		final FAKE_MAVEN_HOME = Paths.get( 'target', this.class.simpleName )
+				.toFile().absolutePath
+		def mavenHelper = new MavenHelper() {
+			String getMavenRepoHome( ) { FAKE_MAVEN_HOME }
+		}
+
+		and:
+		"A number of artifacts under the groupId"
+		createFileTreeWith( files, 'target', this.class.simpleName )
+
+		when:
+		"I ask for the artifactIds under the groupId"
+		def result = mavenHelper.findArtifactIdsUnder( groupId )
+
+		then:
+		"All the artifactIds are found"
+		result == expected
+
+		cleanup:
+		safeDelete FAKE_MAVEN_HOME
+
+		where:
+		groupId | files                                   | expected
+		'org'   | [ [ d: 'org' ] ]                        | [ ]
+		'org'   | [ [ d: 'org' ], [ d: [ 'org', 'a' ] ] ] | [ 'a' ]
+		'com'   | [ [ d: 'org' ], [ d: [ 'org', 'z' ] ],
+				[ d: 'com' ],
+				[ d: [ 'com', 'a' ] ],
+				[ f: [ 'com', 'some.info' ] ],
+				[ f: [ 'com', 'a', 'pom.xml' ] ],
+				[ d: [ 'com', 'a', '1.0' ] ],
+				[ d: [ 'com', 'b' ] ] ]                   | [ 'a', 'b' ]
+
 	}
 
 }

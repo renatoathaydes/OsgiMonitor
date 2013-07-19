@@ -107,11 +107,24 @@ public class MavenHelper extends FilesHelper {
 
 	public Path locationOfArtifact( String groupId, String artifactId ) {
 		verifyNotNullOrEmpty( groupId, artifactId );
-		List<String> pathList = new ArrayList<>();
-		pathList.addAll( Arrays.asList( groupId.split( quote( "." ) ) ) );
+		List<String> pathList = getPathListFromGroupId( groupId );
 		pathList.add( artifactId );
 		return Paths.get( getMavenRepoHome(),
 				pathList.toArray( new String[pathList.size()] ) );
+	}
+
+	public List<String> findArtifactIdsUnder( String groupId ) {
+		verifyNotNullOrEmpty( groupId );
+		List<String> pathList = getPathListFromGroupId( groupId );
+		Path groupPath = Paths.get( getMavenRepoHome(),
+				pathList.toArray( new String[pathList.size()] ) );
+		return listFoldersUnder( groupPath );
+	}
+
+	private List<String> getPathListFromGroupId( String groupId ) {
+		List<String> pathList = new ArrayList<>();
+		pathList.addAll( Arrays.asList( groupId.split( quote( "." ) ) ) );
+		return pathList;
 	}
 
 	private void verifyNotNullOrEmpty( String... args ) {
