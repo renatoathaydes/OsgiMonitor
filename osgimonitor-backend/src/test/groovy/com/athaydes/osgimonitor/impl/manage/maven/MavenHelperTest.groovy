@@ -161,5 +161,53 @@ class MavenHelperTest extends Specification {
 
 	}
 
+	def "The location of an artifact can be determined by its groupId and artifactId"( ) {
+		given:
+		"A MavenHelper and an artifact's groupId and artifactId"
+		final FAKE_MAVEN_HOME = "."
+		def mavenHelper = new MavenHelper() {
+			String getMavenRepoHome( ) { FAKE_MAVEN_HOME }
+		}
+
+		when:
+		"I ask for the location of the artifact"
+		def result = mavenHelper.locationOfArtifact( groupId, artifactId )
+
+		then:
+		"The location of the artifact is determined correctly"
+		result == Paths.get( FAKE_MAVEN_HOME, expected as String[] )
+
+		where:
+		groupId     | artifactId | expected
+		'org.a'     | 'artifact' | [ 'org', 'a', 'artifact' ]
+		'org'       | 'artifact' | [ 'org', 'artifact' ]
+		'org.a.b.c' | 'd'        | [ 'org', 'a', 'b', 'c', 'd' ]
+	}
+
+	def "An Exception is thrown when trying to find the location of artifacts with invalid arguments"( ) {
+		given:
+		"A MavenHelper and invalid artifact's groupId or artifactId"
+		final FAKE_MAVEN_HOME = "."
+		def mavenHelper = new MavenHelper() {
+			String getMavenRepoHome( ) { FAKE_MAVEN_HOME }
+		}
+
+		when:
+		"I ask for the location of the artifact"
+		mavenHelper.locationOfArtifact( groupId, artifactId )
+
+		then:
+		"A IllegalArgumentException is thrown"
+		thrown IllegalArgumentException
+
+		where:
+		groupId | artifactId
+		''      | 'artifact'
+		'org'   | ''
+		null    | 'artifact'
+		'org'   | null
+		''      | ''
+		null    | null
+	}
 
 }

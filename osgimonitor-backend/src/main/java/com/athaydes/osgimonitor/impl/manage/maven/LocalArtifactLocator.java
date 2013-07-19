@@ -66,7 +66,8 @@ public class LocalArtifactLocator implements ArtifactLocator {
 
 	@Override
 	public Set<Artifact> findByGroupId( String groupId ) {
-		return null;  //To change body of implemented methods use File | Settings | File Templates.
+
+		return null;
 	}
 
 	@Override
@@ -76,12 +77,10 @@ public class LocalArtifactLocator implements ArtifactLocator {
 
 	@Override
 	public Artifact findArtifact( String groupId, String artifactId ) {
-		Path repositoryDir = Paths.get( mavenHelper.getMavenRepoHome() );
-		if ( !repositoryDir.toFile().exists() )
+		Path artifactLocation = mavenHelper.locationOfArtifact( groupId, artifactId );
+		if ( !artifactLocation.toFile().exists() )
 			return null;
-
-
-		return null;
+		return new Artifact( groupId, artifactId );
 	}
 
 	@Override

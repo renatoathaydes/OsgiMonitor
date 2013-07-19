@@ -5,8 +5,11 @@ import com.athaydes.osgimonitor.impl.manage.XmlHelper;
 import org.w3c.dom.Document;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static java.util.regex.Pattern.quote;
 
@@ -55,6 +58,7 @@ public class MavenHelper extends FilesHelper {
 	}
 
 	public String[] locationParts( String fullPathToJar ) {
+		verifyNotNullOrEmpty( fullPathToJar );
 		String[] locationParts =
 				pathFromMavenRepoHome( fullPathToJar )
 						.split( quote( File.separator ) );
@@ -71,6 +75,7 @@ public class MavenHelper extends FilesHelper {
 	}
 
 	private String pathFromMavenRepoHome( String fullPath ) {
+		verifyNotNullOrEmpty( fullPath );
 		String mavenRepoHome = getMavenRepoHome();
 		String[] parts = fullPath.split( quote( mavenRepoHome ) );
 		if ( parts.length != 2 )
@@ -98,6 +103,23 @@ public class MavenHelper extends FilesHelper {
 	public String versionFrom( String[] locationParts ) {
 		verifyLocationParts( locationParts );
 		return locationParts[locationParts.length - 2];
+	}
+
+	public Path locationOfArtifact( String groupId, String artifactId ) {
+		verifyNotNullOrEmpty( groupId, artifactId );
+		List<String> pathList = new ArrayList<>();
+		pathList.addAll( Arrays.asList( groupId.split( quote( "." ) ) ) );
+		pathList.add( artifactId );
+		return Paths.get( getMavenRepoHome(),
+				pathList.toArray( new String[pathList.size()] ) );
+	}
+
+	private void verifyNotNullOrEmpty( String... args ) {
+		for ( String arg : args ) {
+			if ( arg == null || arg.isEmpty() ) {
+				throw new IllegalArgumentException( "Argument cannot be null or empty" );
+			}
+		}
 	}
 
 	protected String getMavenHomeEnvVariable() {
