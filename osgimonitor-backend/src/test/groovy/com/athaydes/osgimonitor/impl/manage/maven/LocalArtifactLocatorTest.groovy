@@ -14,9 +14,11 @@ import static com.athaydes.osgimonitor.impl.CommonTestFunctions.*
  */
 class LocalArtifactLocatorTest extends Specification {
 
+	final LIST_FOR_TEST_DIR = [ 'target', this.class.simpleName ].asImmutable()
+
 	def "A single dependency can be fetched by entering a groupId and artifactId"( ) {
 		given:
-		"A LocalArtifactLocator"
+		"A LocalArtifactLocator pointing to the REAL Maven Repo Home" //TODO use fake repo
 		def locator = new LocalArtifactLocator()
 
 		when:
@@ -39,17 +41,12 @@ class LocalArtifactLocatorTest extends Specification {
 	def "A set of artifacts can be found by entering a class name"( ) {
 		given:
 		"A LocalArtifactLocator pointing to a fake Maven repo home"
-		final FAKE_MAVEN_REPO_HOME = Paths.get( 'target', this.class.simpleName )
-		ArtifactLocator locator = new LocalArtifactLocator()
-		locator.mavenHelper = new MavenHelper() {
-			@Override
-			String getMavenRepoHome( ) { FAKE_MAVEN_REPO_HOME }
-		}
+		def locator = locatorWithMavenRepoHomePointingToTestDir()
 
 		and:
 		"The fake Maven repo contains a number of jars with known classes"
 		def jars = numberOfJars < 1 ? [ ] : ( 1..numberOfJars ).collect {
-			def jarPath = FAKE_MAVEN_REPO_HOME.resolve(
+			def jarPath = list2path( LIST_FOR_TEST_DIR ).resolve(
 					Paths.get( "g$it", "a$it", "v$it", "a${it}.jar" ) )
 			createExecutableJar( jarPath.toAbsolutePath().toString(),
 					[ classNames: [
@@ -75,7 +72,7 @@ class LocalArtifactLocatorTest extends Specification {
 
 		cleanup:
 		jars?.each { it?.close() }
-		safeDelete FAKE_MAVEN_REPO_HOME
+		safeDelete list2path( LIST_FOR_TEST_DIR )
 
 		where:
 		className                    | numberOfJars | indexesContainingClass
@@ -86,8 +83,8 @@ class LocalArtifactLocatorTest extends Specification {
 
 	def "A set of artifacts can be found by entering a groupId"( ) {
 		given:
-		"A LocalArtifactLocator"
-		ArtifactLocator locator = new LocalArtifactLocator()
+		"A LocalArtifactLocator pointing to a REAL Maven Repo Home" //TODO use fake repo
+		def locator = new LocalArtifactLocator()
 
 		when:
 		"A search by groupId is made"
@@ -107,12 +104,7 @@ class LocalArtifactLocatorTest extends Specification {
 	def "A set of artifacts can be found by entering an artifactId"( ) {
 		given:
 		"A LocalArtifactLocator pointing to a fake Maven repo home"
-		final FAKE_MAVEN_REPO_HOME = Paths.get( 'target', this.class.simpleName )
-		ArtifactLocator locator = new LocalArtifactLocator()
-		locator.mavenHelper = new MavenHelper() {
-			@Override
-			String getMavenRepoHome( ) { FAKE_MAVEN_REPO_HOME }
-		}
+		def locator = locatorWithMavenRepoHomePointingToTestDir()
 
 		and:
 		"A fake Maven repo with known contents"
@@ -128,7 +120,7 @@ class LocalArtifactLocatorTest extends Specification {
 		artifacts.collect { "${it.groupId}:${it.artifactId}" } as Set == expected as Set
 
 		cleanup:
-		safeDelete FAKE_MAVEN_REPO_HOME
+		safeDelete list2path( LIST_FOR_TEST_DIR )
 
 		where:
 		files                                                       | artifactId | expected
@@ -175,12 +167,7 @@ class LocalArtifactLocatorTest extends Specification {
 	def "All versions of an artifact can be found"( ) {
 		given:
 		"A LocalArtifactLocator pointing to a fake Maven repo home"
-		final FAKE_MAVEN_REPO_HOME = Paths.get( 'target', this.class.simpleName )
-		ArtifactLocator locator = new LocalArtifactLocator()
-		locator.mavenHelper = new MavenHelper() {
-			@Override
-			String getMavenRepoHome( ) { FAKE_MAVEN_REPO_HOME }
-		}
+		def locator = locatorWithMavenRepoHomePointingToTestDir()
 
 		and:
 		"A fake Maven repo with known contents"
@@ -195,7 +182,7 @@ class LocalArtifactLocatorTest extends Specification {
 		result == expected as Set
 
 		cleanup:
-		safeDelete FAKE_MAVEN_REPO_HOME
+		safeDelete list2path( LIST_FOR_TEST_DIR )
 
 		where:
 		files                                            | artifact           | expected
@@ -229,6 +216,16 @@ class LocalArtifactLocatorTest extends Specification {
 				[ d: [ 'b', 'a' ] ],
 				[ d: [ 'b', 'a', '5.0' ] ],
 				[ f: [ 'b', 'a', '5.0', 'b.jar' ] ] ]    | [ g: 'a', a: 'b' ] | [ '1.0', '0.4', '0.0' ]
+	}
+
+	private locatorWithMavenRepoHomePointingToTestDir( ) {
+		final FAKE_MAVEN_REPO_HOME = Paths.get( 'target', this.class.simpleName )
+		ArtifactLocator locator = new LocalArtifactLocator()
+		locator.mavenHelper = new MavenHelper() {
+			@Override
+			String getMavenRepoHome( ) { FAKE_MAVEN_REPO_HOME }
+		}
+		return locator
 	}
 
 }
