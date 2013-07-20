@@ -121,6 +121,37 @@ public class MavenHelper extends FilesHelper {
 		return listFoldersUnder( groupPath );
 	}
 
+	public boolean isMavenVersion( String text ) {
+		if ( text == null || text.isEmpty() )
+			return false;
+		String[] parts = text.split( quote( "." ) );
+		int startsWithIntCount = 0;
+		for ( int i = 0; i < Math.min( 2, parts.length ); i++ ) {
+			String part = parts[i];
+			if ( !part.isEmpty() && Character.isDigit( part.toCharArray()[0] ) )
+				startsWithIntCount++;
+		}
+		return startsWithIntCount > 1;
+	}
+
+	public boolean isArtifactId( Path path ) {
+		for ( File child : path.toFile().listFiles() ) {
+			if ( child.isDirectory()
+					&& isMavenVersion( child.getName() )
+					&& hasChildJar( child ) )
+				return true;
+		}
+		return false;
+	}
+
+	private boolean hasChildJar( File file ) {
+		for ( File child : file.listFiles() ) {
+			if ( child.isFile() && hasExtension( child.toPath(), "jar" ) )
+				return true;
+		}
+		return false;
+	}
+
 	private List<String> getPathListFromGroupId( String groupId ) {
 		List<String> pathList = new ArrayList<>();
 		pathList.addAll( Arrays.asList( groupId.split( quote( "." ) ) ) );

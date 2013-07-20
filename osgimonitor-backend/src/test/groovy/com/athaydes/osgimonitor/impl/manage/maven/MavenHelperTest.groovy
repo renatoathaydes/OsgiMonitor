@@ -247,4 +247,85 @@ class MavenHelperTest extends Specification {
 
 	}
 
+	def "It can be determined whether a String refers to a Maven version number"( ) {
+		given:
+		"A MavenHelper and a String"
+		def mavenHelper = new MavenHelper()
+
+		when:
+		"I ask if the String is a Maven version"
+		def result = mavenHelper.isMavenVersion( string )
+		println "Trying $string"
+		then:
+		"I get the expected answer"
+		result == expected
+
+		where:
+		string            | expected
+		'1'               | false
+		'a'               | false
+		'a1'              | false
+		'1a'              | false
+		'NO.V.1.0'        | false
+		'1.0'             | true
+		'1.0-A'           | true
+		'2.0'             | true
+		'2.3.4'           | true
+		'5.4.3.2.1.ALPHA' | true
+		'8.2-BETA'        | true
+		'8.2.1-ALPHA'     | true
+
+	}
+
+	def "It can be determined whether a Path refers to an artifactId"( ) {
+		given:
+		"A MavenHelper and an artifactId"
+		def mavenHelper = new MavenHelper()
+
+		and:
+		"A file tree with known contents"
+		createFileTreeWith( files, 'target', this.class.simpleName )
+
+		when:
+		"I ask whether a folder in the file tree refers to an artifactId's folder"
+		def result = mavenHelper.isArtifactId(
+				Paths.get( 'target', this.class.simpleName ) )
+
+		then:
+		"I get the expected answer"
+		result == expected
+
+		cleanup:
+		safeDelete new File( 'target', this.class.simpleName )
+
+		where:
+		files                                     | expected
+		[ ]                                       | false
+		[ [ d: [ '1.0' ] ],
+				[ f: [ '1.0', 'a.jar' ] ] ]       | true
+		[ [ d: [ '1.0' ] ] ]                      | false
+		[ [ d: [ '1.0' ] ],
+				[ d: [ '1.0', 'no.jar' ] ] ]      | false
+		[ [ d: [ '1.0' ] ],
+				[ f: [ '1.0', 'no_jar' ] ] ]      | false
+		[ [ d: [ 'no_ver' ] ],
+				[ f: [ 'no_ver', 'a.jar' ] ] ]    | false
+		[ [ d: 'a' ],
+				[ d: [ 'a', '1.0' ] ],
+				[ f: [ 'a', '1.0', 'a.jar' ] ] ]  | false
+		[ [ d: 'a' ],
+				[ d: [ 'a', 'b' ] ],
+				[ d: [ '5.1-BETA' ] ],
+				[ f: [ '5.1-BETA', 'my.jar' ] ] ] | true
+		[ [ d: [ '5.1-BETA' ] ],
+				[ f: [ '5.1-BETA', 'my.jar' ] ],
+				[ d: [ '5.1' ] ],
+				[ d: [ '5.1', 'no.jar' ] ] ]      | true
+		[ [ d: [ '0.1' ] ],
+				[ f: [ '0.1', 'my.jar' ] ],
+				[ f: [ '0.1', 'my-sources.jar' ] ],
+				[ f: [ '0.1', 'info.txt' ] ] ]    | true
+
+	}
+
 }

@@ -4,6 +4,7 @@ import com.athaydes.osgimonitor.api.manage.Artifact;
 import com.athaydes.osgimonitor.api.manage.ArtifactLocator;
 import com.athaydes.osgimonitor.api.manage.VersionedArtifact;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -11,6 +12,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.JarFile;
+
+import static java.util.regex.Pattern.quote;
 
 /**
  * User: Renato
@@ -76,7 +79,41 @@ public class LocalArtifactLocator implements ArtifactLocator {
 
 	@Override
 	public Set<Artifact> findByArtifactId( String artifactId ) {
-		return null;  //To change body of implemented methods use File | Settings | File Templates.
+		Set<Artifact> result = new HashSet<>();
+		if ( artifactId == null || artifactId.isEmpty() )
+			return result;
+		try {
+			List<Path> candidateFolders = mavenHelper.findFoldersIn(
+					Paths.get( mavenHelper.getMavenRepoHome() ),
+					".*" + quote( artifactId ) );
+			for ( Path candidate : candidateFolders ) {
+				if ( mavenHelper.isArtifactId( candidate ) ) {
+					File someJar = findJarUnderArtifact( candidate );
+					String[] locationParts = mavenHelper.locationParts( someJar.getAbsolutePath() );
+					String groupId = mavenHelper.groupIdFrom( locationParts );
+					result.add( new Artifact( groupId, artifactId ) );
+				}
+			}
+		} catch ( Exception e ) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	private File findJarUnderArtifact( Path artifactPath ) {
+		for ( File versionDir : nullSafeListFiles( artifactPath.toFile() ) ) {
+			for ( File child : nullSafeListFiles( versionDir ) ) {
+				if ( mavenHelper.hasExtension( child.toPath(), "jar" ) )
+					return child;
+			}
+
+		}
+		throw new RuntimeException( "No jars under " + artifactPath );
+	}
+
+	private File[] nullSafeListFiles( File file ) {
+		File[] result = file.listFiles();
+		return result == null ? new File[0] : result;
 	}
 
 	@Override

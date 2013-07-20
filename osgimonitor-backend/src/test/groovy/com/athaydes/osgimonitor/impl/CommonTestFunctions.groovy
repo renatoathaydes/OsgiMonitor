@@ -1,5 +1,7 @@
 package com.athaydes.osgimonitor.impl
 
+import com.athaydes.osgimonitor.impl.manage.maven.MavenHelper
+
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.jar.JarFile
@@ -165,10 +167,7 @@ class CommonTestFunctions {
 	 * @return true iff the given text looks like an artifact version
 	 */
 	static boolean looksLikeArtifactVersion( String text ) {
-		if ( text == null || text.isEmpty() )
-			false
-		else
-			text.split( /\./ ).grep { String part -> part[ 0 ].isInteger() }.size() > 1
+		new MavenHelper().isMavenVersion( text )
 	}
 
 }

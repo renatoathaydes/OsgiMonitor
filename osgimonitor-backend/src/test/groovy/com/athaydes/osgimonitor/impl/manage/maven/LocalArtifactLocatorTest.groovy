@@ -5,8 +5,7 @@ import spock.lang.Specification
 
 import java.nio.file.Paths
 
-import static com.athaydes.osgimonitor.impl.CommonTestFunctions.createExecutableJar
-import static com.athaydes.osgimonitor.impl.CommonTestFunctions.safeDelete
+import static com.athaydes.osgimonitor.impl.CommonTestFunctions.*
 
 /**
  *
@@ -39,7 +38,7 @@ class LocalArtifactLocatorTest extends Specification {
 	def "A set of artifacts can be found by entering a class name"( ) {
 		given:
 		"A LocalArtifactLocator pointing to a fake Maven repo home"
-		final FAKE_MAVEN_REPO_HOME = Paths.get( 'target', LocalArtifactLocatorTest.class.simpleName )
+		final FAKE_MAVEN_REPO_HOME = Paths.get( 'target', this.class.simpleName )
 		ArtifactLocator locator = new LocalArtifactLocator()
 		locator.mavenHelper = new MavenHelper() {
 			@Override
@@ -106,22 +105,70 @@ class LocalArtifactLocatorTest extends Specification {
 
 	def "A set of artifacts can be found by entering an artifactId"( ) {
 		given:
-		"A LocalArtifactLocator"
+		"A LocalArtifactLocator pointing to a fake Maven repo home"
+		final FAKE_MAVEN_REPO_HOME = Paths.get( 'target', this.class.simpleName )
 		ArtifactLocator locator = new LocalArtifactLocator()
+		locator.mavenHelper = new MavenHelper() {
+			@Override
+			String getMavenRepoHome( ) { FAKE_MAVEN_REPO_HOME }
+		}
+
+		and:
+		"A fake Maven repo with known contents"
+		createFileTreeWith( files, 'target', this.class.simpleName )
 
 		when:
 		"A search by artifactId is made"
+		println "Searching for $artifactId"
 		def artifacts = locator.findByArtifactId( artifactId )
 
 		then:
 		"A number of artifacts are found (note that uniqueness requires also groupId)"
 		artifacts != null
-		!artifacts.isEmpty()
-		//println artifacts.collect { "${it.groupId}:${it.artifactId}" }
-		artifacts.each { assert it.artifactId == artifactId }
-		artifacts.collect { it.groupId }.unique().size() == artifacts.size()
+		artifacts.collect { "${it.groupId}:${it.artifactId}" } as Set == expected as Set
+
+		cleanup:
+		safeDelete FAKE_MAVEN_REPO_HOME
 
 		where:
-		artifactId << [ "guice", "junit" ]
+		files                                                       | artifactId | expected
+		[ ]                                                         | 'a'        | [ ]
+		[ [ d: 'a' ] ]                                              | 'a'        | [ ]
+		[ [ d: 'a' ],
+				[ d: [ 'a', 'a' ] ] ]                               | 'a'        | [ ]
+		[ [ d: 'a' ],
+				[ d: [ 'a', 'b' ] ],
+				[ d: [ 'a', 'b', '1.0' ] ] ]                        | 'b'        | [ ]
+		[ [ d: 'a' ],
+				[ d: [ 'a', 'b' ] ],
+				[ d: [ 'a', 'b', '1.0' ] ],
+				[ f: [ 'a', 'b', '1.0', 'hi.txt' ] ] ]              | 'b'        | [ ]
+		[ [ d: 'a' ],
+				[ d: [ 'a', 'b' ] ],
+				[ d: [ 'a', 'b', '1.0' ] ],
+				[ f: [ 'a', 'b', '1.0', 'a.jar' ] ] ]               | 'b'        | [ 'a:b' ]
+		[ [ d: 'a' ],
+				[ d: [ 'a', 'b' ] ],
+				[ d: [ 'a', 'b', '1.0' ] ],
+				[ f: [ 'a', 'b', '1.0', 'a.jar' ] ],
+				[ d: [ 'a', 'b', '2.0' ] ],
+				[ f: [ 'a', 'b', '2.0', 'b.jar' ] ] ]               | 'b'        | [ 'a:b' ]
+		[ [ d: 'a' ],
+				[ d: [ 'a', 'b' ] ],
+				[ d: [ 'a', 'b', '1.0' ] ],
+				[ f: [ 'a', 'b', '1.0', 'a.jar' ] ],
+				[ d: [ 'a', 'b', 'b' ] ],
+				[ d: [ 'a', 'b', 'b', '3.0' ] ],
+				[ f: [ 'a', 'b', 'b', '3.0', 'b.jar' ] ] ]          | 'b'        | [ 'a:b', 'a.b:b' ]
+		[ [ d: 'a' ],
+				[ d: [ 'a', 'ba' ] ],
+				[ d: [ 'a', 'ba', '1.0' ] ],
+				[ f: [ 'a', 'ba', '1.0', 'a.jar' ] ],
+				[ d: 'f' ],
+				[ d: [ 'f', 'g' ] ],
+				[ d: [ 'f', 'g', 'h' ] ],
+				[ d: [ 'f', 'g', 'h', 'ba' ] ],
+				[ d: [ 'f', 'g', 'h', 'ba', '3.0' ] ],
+				[ f: [ 'f', 'g', 'h', 'ba', '3.0', 'ba-1.jar' ] ] ] | 'ba'       | [ 'a:ba', 'f.g.h:ba' ]
 	}
 }
