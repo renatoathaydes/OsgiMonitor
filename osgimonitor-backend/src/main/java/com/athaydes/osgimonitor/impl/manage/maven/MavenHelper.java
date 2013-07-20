@@ -135,7 +135,7 @@ public class MavenHelper extends FilesHelper {
 	}
 
 	public boolean isArtifactId( Path path ) {
-		for ( File child : path.toFile().listFiles() ) {
+		for ( File child : nullSafeListFiles( path.toFile() ) ) {
 			if ( child.isDirectory()
 					&& isMavenVersion( child.getName() )
 					&& hasChildJar( child ) )
@@ -145,7 +145,7 @@ public class MavenHelper extends FilesHelper {
 	}
 
 	private boolean hasChildJar( File file ) {
-		for ( File child : file.listFiles() ) {
+		for ( File child : nullSafeListFiles( file ) ) {
 			if ( child.isFile() && hasExtension( child.toPath(), "jar" ) )
 				return true;
 		}

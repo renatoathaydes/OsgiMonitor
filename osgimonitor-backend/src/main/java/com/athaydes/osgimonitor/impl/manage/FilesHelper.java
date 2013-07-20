@@ -69,14 +69,16 @@ public class FilesHelper {
 
 	public List<String> listFoldersUnder( Path path ) {
 		List<String> result = new ArrayList<>();
-		File[] files = path.toFile().listFiles();
-		if ( files != null ) {
-			for ( File file : files ) {
-				if ( file.isDirectory() )
-					result.add( file.getName() );
-			}
+		for ( File file : nullSafeListFiles( path.toFile() ) ) {
+			if ( file.isDirectory() )
+				result.add( file.getName() );
 		}
 		return result;
+	}
+
+	public File[] nullSafeListFiles( File file ) {
+		File[] result = file.listFiles();
+		return result == null ? new File[0] : result;
 	}
 
 	private boolean hasOneOfExtensions( Path file, String[] extensions ) {

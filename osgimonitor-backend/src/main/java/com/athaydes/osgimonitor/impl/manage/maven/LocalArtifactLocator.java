@@ -101,19 +101,13 @@ public class LocalArtifactLocator implements ArtifactLocator {
 	}
 
 	private File findJarUnderArtifact( Path artifactPath ) {
-		for ( File versionDir : nullSafeListFiles( artifactPath.toFile() ) ) {
-			for ( File child : nullSafeListFiles( versionDir ) ) {
+		for ( File versionDir : mavenHelper.nullSafeListFiles( artifactPath.toFile() ) ) {
+			for ( File child : mavenHelper.nullSafeListFiles( versionDir ) ) {
 				if ( mavenHelper.hasExtension( child.toPath(), "jar" ) )
 					return child;
 			}
-
 		}
 		throw new RuntimeException( "No jars under " + artifactPath );
-	}
-
-	private File[] nullSafeListFiles( File file ) {
-		File[] result = file.listFiles();
-		return result == null ? new File[0] : result;
 	}
 
 	@Override
