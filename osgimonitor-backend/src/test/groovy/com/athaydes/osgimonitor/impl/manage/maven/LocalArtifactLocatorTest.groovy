@@ -1,5 +1,6 @@
 package com.athaydes.osgimonitor.impl.manage.maven
 
+import com.athaydes.osgimonitor.api.manage.Artifact
 import com.athaydes.osgimonitor.api.manage.ArtifactLocator
 import spock.lang.Specification
 
@@ -119,7 +120,6 @@ class LocalArtifactLocatorTest extends Specification {
 
 		when:
 		"A search by artifactId is made"
-		println "Searching for $artifactId"
 		def artifacts = locator.findByArtifactId( artifactId )
 
 		then:
@@ -171,4 +171,64 @@ class LocalArtifactLocatorTest extends Specification {
 				[ d: [ 'f', 'g', 'h', 'ba', '3.0' ] ],
 				[ f: [ 'f', 'g', 'h', 'ba', '3.0', 'ba-1.jar' ] ] ] | 'ba'       | [ 'a:ba', 'f.g.h:ba' ]
 	}
+
+	def "All versions of an artifact can be found"( ) {
+		given:
+		"A LocalArtifactLocator pointing to a fake Maven repo home"
+		final FAKE_MAVEN_REPO_HOME = Paths.get( 'target', this.class.simpleName )
+		ArtifactLocator locator = new LocalArtifactLocator()
+		locator.mavenHelper = new MavenHelper() {
+			@Override
+			String getMavenRepoHome( ) { FAKE_MAVEN_REPO_HOME }
+		}
+
+		and:
+		"A fake Maven repo with known contents"
+		createFileTreeWith( files, 'target', this.class.simpleName )
+
+		when:
+		"All versions of a certain artifact are requested"
+		def result = locator.getVersionsOf( new Artifact( artifact.g, artifact.a ) )
+
+		then:
+		"All versions of the artifact are returned"
+		result == expected as Set
+
+		cleanup:
+		safeDelete FAKE_MAVEN_REPO_HOME
+
+		where:
+		files                                            | artifact           | expected
+		[ ]                                              | [ g: 'a', a: 'b' ] | [ ]
+		[ [ d: 'a' ],
+				[ d: [ 'a', 'b' ] ] ]                    | [ g: 'a', a: 'b' ] | [ ]
+		[ [ d: 'a' ],
+				[ d: [ 'a', 'b' ] ],
+				[ d: [ 'a', 'b', 'no_ver' ] ] ]          | [ g: 'a', a: 'b' ] | [ ]
+		[ [ d: 'a' ],
+				[ d: [ 'a', 'b' ] ],
+				[ d: [ 'a', 'b', 'no_ver' ] ],
+				[ f: [ 'a', 'b', 'no_ver', 'a.jar' ] ] ] | [ g: 'a', a: 'b' ] | [ ]
+		[ [ d: 'a' ],
+				[ d: [ 'a', 'b' ] ],
+				[ d: [ 'a', 'b', '1.0' ] ] ]             | [ g: 'a', a: 'b' ] | [ ]
+		[ [ d: 'a' ],
+				[ d: [ 'a', 'b' ] ],
+				[ d: [ 'a', 'b', '1.0' ] ],
+				[ f: [ 'a', 'b', '1.0', 'a.jar' ] ] ]    | [ g: 'a', a: 'b' ] | [ '1.0' ]
+		[ [ d: 'a' ], [ d: 'b' ],
+				[ d: [ 'a', 'b' ] ],
+				[ d: [ 'a', 'b', '0.0' ] ],
+				[ f: [ 'a', 'b', '0.0', 'a.jar' ] ],
+				[ d: [ 'a', 'b', 'no_ver' ] ],
+				[ f: [ 'a', 'b', 'no_ver', 'a.jar' ] ],
+				[ d: [ 'a', 'b', '1.0' ] ],
+				[ f: [ 'a', 'b', '1.0', 'a.jar' ] ],
+				[ d: [ 'a', 'b', '0.4' ] ],
+				[ f: [ 'a', 'b', '0.4', 'a.jar' ] ],
+				[ d: [ 'b', 'a' ] ],
+				[ d: [ 'b', 'a', '5.0' ] ],
+				[ f: [ 'b', 'a', '5.0', 'b.jar' ] ] ]    | [ g: 'a', a: 'b' ] | [ '1.0', '0.4', '0.0' ]
+	}
+
 }

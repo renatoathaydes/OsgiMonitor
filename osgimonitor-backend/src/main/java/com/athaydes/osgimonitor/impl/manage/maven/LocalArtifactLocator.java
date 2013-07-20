@@ -126,7 +126,22 @@ public class LocalArtifactLocator implements ArtifactLocator {
 
 	@Override
 	public Set<String> getVersionsOf( Artifact artifact ) {
-		//TODO implement
-		return null;  //To change body of implemented methods use File | Settings | File Templates.
+		Set<String> result = new HashSet<>();
+		if ( artifact == null ) return result;
+		Path artifactPath = mavenHelper.locationOfArtifact(
+				artifact.getGroupId(), artifact.getArtifactId() );
+		for ( String child : mavenHelper.listFoldersUnder( artifactPath ) ) {
+			if ( mavenHelper.isMavenVersion( child ) ) {
+				Path versionPath = artifactPath.resolve( child );
+				try {
+					if ( !mavenHelper.findAllFilesIn( versionPath, "jar" ).isEmpty() ) {
+						result.add( versionPath.getFileName().toString() );
+					}
+				} catch ( IOException e ) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return result;
 	}
 }
