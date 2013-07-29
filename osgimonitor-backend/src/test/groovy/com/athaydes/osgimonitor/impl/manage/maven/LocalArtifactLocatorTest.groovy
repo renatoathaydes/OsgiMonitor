@@ -108,7 +108,7 @@ class LocalArtifactLocatorTest extends Specification {
 
 		and:
 		"A fake Maven repo with known contents"
-		createFileTreeWith( files, 'target', this.class.simpleName )
+		createFileTreeWith( files, LIST_FOR_TEST_DIR as String[] )
 
 		when:
 		"A search by artifactId is made"
@@ -171,7 +171,7 @@ class LocalArtifactLocatorTest extends Specification {
 
 		and:
 		"A fake Maven repo with known contents"
-		createFileTreeWith( files, 'target', this.class.simpleName )
+		createFileTreeWith( files, LIST_FOR_TEST_DIR as String[] )
 
 		when:
 		"All versions of a certain artifact are requested"
@@ -219,7 +219,7 @@ class LocalArtifactLocatorTest extends Specification {
 	}
 
 	private locatorWithMavenRepoHomePointingToTestDir( ) {
-		final FAKE_MAVEN_REPO_HOME = Paths.get( 'target', this.class.simpleName )
+		final FAKE_MAVEN_REPO_HOME = list2path( LIST_FOR_TEST_DIR )
 		ArtifactLocator locator = new LocalArtifactLocator()
 		locator.mavenHelper = new MavenHelper() {
 			@Override
