@@ -2,6 +2,7 @@
 out/
 lib/
 target/
+build/
 
 *.jar
 *.iml
