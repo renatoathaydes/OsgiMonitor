@@ -89,12 +89,12 @@ public class FilesHelper {
 		return false;
 	}
 
-	protected String getUserHome() {
+	public String getUserHome() {
 		return System.getProperty( "user.home" );
 	}
 
-	protected static boolean dirExists( String m2Home ) {
-		return m2Home != null && new File( m2Home ).exists();
+	public static boolean dirExists( String dir ) {
+		return dir != null && new File( dir ).isDirectory();
 	}
 
 }

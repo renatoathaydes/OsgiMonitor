@@ -18,40 +18,36 @@ import static java.util.regex.Pattern.quote;
  */
 public class MavenHelper extends FilesHelper {
 
-	private static final String SETTINGS_FILE_NAME = "settings.xml";
-
 	private XmlHelper xmlHelper = new XmlHelper();
 
 	public void setXmlHelper( XmlHelper xmlHelper ) {
 		this.xmlHelper = xmlHelper;
 	}
 
-	public String getMavenHome() {
-		String m2Home = getMavenHomeEnvVariable();
-		if ( dirExists( m2Home ) ) {
-			return m2Home;
-		} else {
-			String userHome = getUserHome();
-			String mavenHome = userHome + File.separator + ".m2";
-			if ( dirExists( mavenHome ) ) {
-				return mavenHome;
-			} else {
-				throw new RuntimeException( "Cannot find the Maven Home" );
-			}
+	protected List<File> getSettingsFiles() {
+		final String settingsFileName = "settings.xml";
+		List<File> candidateLocations = Arrays.asList(
+				Paths.get( getUserHome(), ".m2", settingsFileName ).toFile(),
+				Paths.get( getM2_HOME(), "conf", settingsFileName ).toFile() );
+
+		List<File> result = new ArrayList<>( candidateLocations.size() );
+		for ( File candidate : candidateLocations ) {
+			if ( candidate.exists() )
+				result.add( candidate );
 		}
+		return result;
 	}
 
 	public String getMavenRepoHome() {
-		File settingsFile = Paths.get( getMavenHome(), SETTINGS_FILE_NAME ).toFile();
-		if ( settingsFile.exists() ) {
+		for ( File settingsFile : getSettingsFiles() ) {
 			try {
 				Document doc = xmlHelper.parseFile( settingsFile );
 				String repoLocation = xmlHelper.evalXPath( doc, "/settings/localRepository/text()" );
-				if ( repoLocation != null ) {
+				if ( dirExists( repoLocation ) ) {
 					return repoLocation;
 				}
 			} catch ( Exception e ) {
-				e.printStackTrace();
+				System.err.println( "Invalid settings file: " + settingsFile.getAbsolutePath() );
 			}
 		}
 		return getDefaultMavenRepoHome();
@@ -166,12 +162,12 @@ public class MavenHelper extends FilesHelper {
 		}
 	}
 
-	protected String getMavenHomeEnvVariable() {
+	protected String getM2_HOME() {
 		return System.getenv( "M2_HOME" );
 	}
 
 	private String getDefaultMavenRepoHome() {
-		return Paths.get( getMavenHome(), "repository" ).toString();
+		return Paths.get( getUserHome(), ".m2", "repository" ).toString();
 	}
 
 }
