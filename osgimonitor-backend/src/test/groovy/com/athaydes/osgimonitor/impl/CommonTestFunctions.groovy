@@ -60,6 +60,7 @@ class CommonTestFunctions {
 	 * @param args optional arguments are: <ul>
 	 * <li>classNames: name of classes to create into the jar</li>
 	 * <li>mainClass: name of the main class (must be contained in classNames)</li>
+	 * <li>codeCreator: closure which takes a className as an argument and returns the code for that class</li>
 	 * </ul>
 	 * @return JarFile
 	 */
@@ -78,7 +79,8 @@ class CommonTestFunctions {
 				throw new RuntimeException( 'classNames cannot be empty' )
 			def mainClass = args.get( 'mainClass', classNames[ 0 ] )
 
-			createJavaFiles( classNames, tempDir )
+			createJavaFiles( classNames, tempDir,
+					args.get( 'codeCreator', this.&getSimplestCompilingJavaCode ) as Closure<String> )
 
 			ant.javac( srcdir: tempDir, includes: '**/*.java', fork: 'true' )
 			ant.jar( destfile: jarName, compress: true, index: true ) {
@@ -95,13 +97,14 @@ class CommonTestFunctions {
 		return new JarFile( jarName, false )
 	}
 
-	private static void createJavaFiles( List<String> classNames, String rootDir ) {
+	private static void createJavaFiles( List<String> classNames, String rootDir,
+		Closure<String> codeCreator ) {
 		classNames.each { className ->
 			def pkgAndClassName = splitPackageAndClassName( className )
 			def javaFile = pkgAndClassName.simpleClassName + '.java'
 			def pkgDirs = pkgAndClassName.packages.join( File.separator )
 			assert createFile( [ rootDir, pkgDirs, javaFile ].join( File.separator ),
-					getSimplestCompilingJavaCode( className ) )
+					codeCreator( className ) )
 		}
 	}
 

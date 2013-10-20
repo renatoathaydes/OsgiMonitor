@@ -155,5 +155,4 @@ public class JavaMonitorRegister implements MonitorRegister,
 		}
 	}
 
-
 }

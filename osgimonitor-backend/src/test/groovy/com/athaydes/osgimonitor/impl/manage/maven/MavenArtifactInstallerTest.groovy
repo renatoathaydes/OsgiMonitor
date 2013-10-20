@@ -1,6 +1,11 @@
 package com.athaydes.osgimonitor.impl.manage.maven
 
+import com.athaydes.osgimonitor.api.manage.VersionedArtifact
 import spock.lang.Specification
+
+import java.nio.file.Paths
+
+import static com.athaydes.osgimonitor.impl.CommonTestFunctions.createExecutableJar
 
 /**
  *
@@ -8,15 +13,31 @@ import spock.lang.Specification
  */
 class MavenArtifactInstallerTest extends Specification {
 
-	def "A local Maven artifact's jar can be copied into the OSGi container bundles folder"( ) {
+	def "A local non-OSGi Maven artifact's jar can be installed into the OSGi container"( ) {
 		given:
-		"A local Maven artifact"
+		"A MavenArtifactInstaller with a fake MavenHelper and fake Maven Repo"
+		def FAKE_MAVEN_REPO_HOME = ""
+		def fakeMavenHelper = Stub( MavenHelper )
+		def installer = new MavenArtifactInstaller( mavenHelper: fakeMavenHelper )
+
+		and:
+		"A local non-OSGi Maven artifact"
+		def jar = createExecutableJar(
+				Paths.get( FAKE_MAVEN_REPO_HOME, 'org', 'example',
+						'1.0', 'non-osgi.jar').toAbsolutePath().toString(),
+				classNames: [ "some.Clazz" ] )
+		println jar
 
 		when:
 		"I ask to install the artifact into the OSGi container"
+		installer.install( VersionedArtifact.from( 'org.example', 'non-osgi', '1.0' ) )
 
 		then:
-		"The artifact's Jar is copied into the OSGi container's bundle folder"
+		"The artifact's Jar is wrapped into an OSGi bundle"
+
+
+		and:
+		"The bundle is copied into the OSGi container's bundle folder"
 
 	}
 
@@ -32,7 +53,7 @@ class MavenArtifactInstallerTest extends Specification {
 
 	}
 
-	def "Trying to install a non-existing artifact causes an exception to be thrown"() {
+	def "Trying to install a non-existing artifact causes an exception to be thrown"( ) {
 		given:
 		"A non-existing Maven artifact"
 
@@ -44,7 +65,7 @@ class MavenArtifactInstallerTest extends Specification {
 
 	}
 
-	def "Trying to install an artifact which is already installed just returns false"() {
+	def "Trying to install an artifact which is already installed just returns false"( ) {
 		given:
 		"An installed artifact"
 
@@ -71,7 +92,7 @@ class MavenArtifactInstallerTest extends Specification {
 
 	}
 
-	def "Trying to uninstall an artifact which has not been installed just returns false"() {
+	def "Trying to uninstall an artifact which has not been installed just returns false"( ) {
 		given:
 		"An artifact which is not installed"
 
